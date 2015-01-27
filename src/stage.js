@@ -12,12 +12,12 @@
 class Stage {
   constructor(id) {
     this.canvas = window.document.createElement('canvas');
-    this.context = this.canvas.getContent('2d');
+    this.context = this.canvas.getContext('2d');
     this.element = window.document.getElementById(id);
     this.scene = null;
     this.height = this.element.offsetHeight;
     this.isShow = false;
-    this.width = this.elelment.offsetWidth;
+    this.width = this.element.offsetWidth;
 
     this.element.appendChild(this.canvas);
     //this.addEventListener();

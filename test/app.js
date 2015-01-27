@@ -17,6 +17,4 @@ class TestApp extends Application {
   }
 }
 
-(function() {
-  Jsfx.loadApplication(TestApp);
-})();
+Jsfx.loadApplication(TestApp);
