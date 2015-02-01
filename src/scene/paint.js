@@ -6,7 +6,7 @@
  */
 
 
-import {Object} from '../object';
+import {Object} from '../lang';
 
 
 export class Color extends Object {
@@ -31,28 +31,28 @@ export class Color extends Object {
     // TODO: parse web color string
     colorString = colorString.substr(1);
     switch (colorString.length) {
-    case 3:
-      colorString =
+      case 3:
+        colorString =
           colorString.charAt(0) + colorString.charAt(0) +
           colorString.charAt(1) + colorString.charAt(1) +
           colorString.charAt(2) + colorString.charAt(2) +
           'ff';
-      break;
-    case 4:
-      colorString =
+        break;
+      case 4:
+        colorString =
           colorString.charAt(0) + colorString.charAt(0) +
           colorString.charAt(1) + colorString.charAt(1) +
           colorString.charAt(2) + colorString.charAt(2) +
           colorString.charAt(3) + colorString.charAt(3);
-      break;
-    case 6:
-      colorString += 'ff';
-      break;
-    case 8:
-      break;
-    default:
-      throw new TypeError(`${colorString} is invalid web color string`);
-      break;
+        break;
+      case 6:
+        colorString += 'ff';
+        break;
+      case 8:
+        break;
+      default:
+        throw new TypeError(`${colorString} is invalid web color string`);
+        break;
     }
     let red = parseInt(colorString.substr(0, 2), 16) / 255;
     let green = parseInt(colorString.substr(2, 2), 16) / 255;

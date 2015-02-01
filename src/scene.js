@@ -6,7 +6,7 @@
  */
 
 
-import {Object} from './object';
+import {Object} from './lang';
 import {Bounds} from './geometry';
 
 
@@ -75,31 +75,31 @@ export class Node extends Object {
       plb = this.parent.layoutBounds;
     }
     context.transform(
-        1, 0, 0, 1,
-        parseInt(lb.minX + lb.width / 2 -
-        plb.minX - plb.width / 2),
-        parseInt(lb.minY + lb.height / 2 -
-        plb.minY - plb.height / 2)
+      1, 0, 0, 1,
+      parseInt(lb.minX + lb.width / 2 -
+      plb.minX - plb.width / 2),
+      parseInt(lb.minY + lb.height / 2 -
+      plb.minY - plb.height / 2)
     );
 
     // translate
     context.transform(
-        1, 0, 0, 1,
-        parseInt(this.translateX + this.layoutX),
-        parseInt(this.translateY + this.layoutY)
+      1, 0, 0, 1,
+      parseInt(this.translateX + this.layoutX),
+      parseInt(this.translateY + this.layoutY)
     );
     // rotate
     context.transform(
-        Math.cos(this.rotate * Math.PI / 180),
-        Math.sin(this.rotate * Math.PI / 180),
-        -Math.sin(this.rotate * Math.PI / 180),
-        Math.cos(this.rotate * Math.PI / 180),
-        0, 0
+      Math.cos(this.rotate * Math.PI / 180),
+      Math.sin(this.rotate * Math.PI / 180),
+      -Math.sin(this.rotate * Math.PI / 180),
+      Math.cos(this.rotate * Math.PI / 180),
+      0, 0
     );
     // scale
     context.transform(
-        this.scaleX, 0, 0,
-        this.scaleY, 0, 0
+      this.scaleX, 0, 0,
+      this.scaleY, 0, 0
     );
   }
 }

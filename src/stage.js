@@ -6,7 +6,8 @@
  */
 
 
-import {Object} from './object';
+import {Object} from './lang';
+import {AnimationTimer} from './animation.js';
 
 
 export class Stage extends Object {
@@ -24,20 +25,6 @@ export class Stage extends Object {
     this.addEventListener();
     this.update();
   }
-  addEventListener() {
-    //
-  }
-  clear() {
-    this.context.setTransform(1, 0, 0, 1, 0, 0);
-    this.context.clearRect(0, 0, this.width, this.height);
-  }
-  draw() {
-    this.scene.root.draw(this.context);
-  }
-  redraw() {
-    this.clear();
-    this.draw();
-  }
   get scene() {
     return this.scene_;
   }
@@ -53,22 +40,32 @@ export class Stage extends Object {
       this.scene_.height = this.height;
     }
   }
+  addEventListener() {
+    //
+  }
+  clear() {
+    this.context.setTransform(1, 0, 0, 1, 0, 0);
+    this.context.clearRect(0, 0, this.width, this.height);
+  }
+  draw() {
+    this.scene.root.draw(this.context);
+  }
+  redraw() {
+    this.clear();
+    this.draw();
+  }
   show() {
     this.isShow = true;
   }
   update() {
-    //
-    var me = this;
-    me.i = 0;
-    (function animationLoop() {
-      if (me.isShow) me.redraw();
-      if (++me.i > 10) {
-        window.cancelAnimationFrame(me.id_);
-      }
-      me.id_ = window.requestAnimationFrame(
-          animationLoop
-      );
-      //me.handle(Date.now());
-    })();
+    (() => {
+      let timer = new AnimationTimer();
+      timer.handle = (now) => {
+        if (!this.isShow) return;
+        this.redraw();
+        timer.stop();
+      };
+      return timer;
+    })().start();
   }
 }
