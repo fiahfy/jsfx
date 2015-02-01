@@ -2,23 +2,23 @@
 
 
 /**
- * @fileoverview xxx
+ * @fileoverview
  */
 
 
-import Stage from '../src/stage';
+import {Stage} from './stage';
+import {Object} from './object';
 
 
-class Application {
+export class Application extends Object {
   constructor() {
+    super();
     this.id = 'app';
     this.stage = new Stage(this.id);
+
     this.start(this.stage);
   }
-  start() {
-    throw new Error();
+  start(primaryStage) {
+    super.abstractMethod();
   }
 }
-
-
-export default Application;
