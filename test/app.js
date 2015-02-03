@@ -18,27 +18,14 @@ class TestApp extends Application {
     console.log('start');
     //document.getElementById('app').innerHTML = 'hoge';
 
-    let root = new Group();
-    let scene = new Scene(root);
-    primaryStage.scene = scene;
+    this.root = new Group();
+    this.scene = new Scene(this.root);
+    primaryStage.scene = this.scene;
 
-    let children = root.children;
+    let children = this.root.children;
 
-    // draw grid
-    for (var i = 0; i <= scene.width; i += 10)
-    {
-      var y = new Line(i, 0, i, scene.height);
-      y.stroke = Color.GRAY;
-      if (i % 100 == 0) y.strokeWidth = 2.0;
-      children.push(y);
-    }
-    for (var j = 0; j <= scene.height; j += 10)
-    {
-      var x = new Line(0, j, scene.width, j);
-      x.stroke = Color.GRAY;
-      if (j % 100 == 0) x.strokeWidth = 2.0;
-      children.push(x);
-    }
+    // grid
+    children.push(this.getGrid());
 
     let circle = new Circle(250, 150, 50);
     circle.fill = Color.RED;
@@ -55,7 +42,33 @@ class TestApp extends Application {
     let group = new Group(circle, rectangle);
     children.push(group);
 
+    rectangle.setOnMouseClicked((function() {
+      var e = new EventHandler();
+      e.handle = function(event) {
+        console.log(1);
+      };
+      return e;
+    })());
+
     primaryStage.show();
+  }
+  getGrid() {
+    let g = new Group();
+
+    for (var i = 0; i <= this.scene.width; i += 10) {
+      var y = new Line(i, 0, i, this.scene.height);
+      y.stroke = Color.GRAY;
+      if (i % 100 == 0) y.strokeWidth = 2.0;
+      g.children.push(y);
+    }
+    for (var j = 0; j <= this.scene.height; j += 10) {
+      var x = new Line(0, j, this.scene.width, j);
+      x.stroke = Color.GRAY;
+      if (j % 100 == 0) x.strokeWidth = 2.0;
+      g.children.push(x);
+    }
+
+    return g;
   }
 }
 

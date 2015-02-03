@@ -15,11 +15,10 @@ export class Application extends Object {
     super();
     this.id = 'app';
     this.stage = new Stage(this.id);
-
-    this.start(this.stage);
   }
-  static load(application) {
-    new application();
+  static load(applicationClass) {
+    let application = new applicationClass();
+    application.start(application.stage);
   }
   start(primaryStage) {
     super.abstractMethod();
