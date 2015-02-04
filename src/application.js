@@ -15,10 +15,11 @@ export class Application extends JFObject {
     super();
     this.id = 'app';
     this.stage = new Stage(this.id);
+
+    this.start(this.stage);
   }
   static load(applicationClass) {
-    let application = new applicationClass();
-    application.start(application.stage);
+    new applicationClass();
   }
   start(primaryStage) {
     super.abstractMethod();

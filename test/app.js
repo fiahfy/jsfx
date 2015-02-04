@@ -57,10 +57,10 @@ class TestApp extends Application {
       };
       return e;
     })();
-    circle.onMouseMoved = (() => {
+    circle.onMouseDragged = (() => {
       var e = new EventHandler();
       e.handle = (event) => {
-        //console.log(2);
+        console.log(event);
       };
       return e;
     })();

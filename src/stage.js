@@ -16,6 +16,8 @@ export class Stage extends JFObject {
     super();
     this.canvas = window.document.createElement('canvas');
     this.context = this.canvas.getContext('2d');
+    this.dragEvent = null;
+    this.dragging = false;
     this.element = window.document.getElementById(id);
     this.scene_ = null;
     this.height = this.element.offsetHeight;
@@ -23,7 +25,6 @@ export class Stage extends JFObject {
     this.width = this.element.offsetWidth;
 
     this.element.appendChild(this.canvas);
-    this.addEventListener();
     this.update();
   }
   get scene() {
@@ -41,7 +42,21 @@ export class Stage extends JFObject {
       this.scene_.height = this.height;
     }
   }
-  addEventListener() {
+  clear() {
+    this.context.setTransform(1, 0, 0, 1, 0, 0);
+    this.context.clearRect(0, 0, this.width, this.height);
+  }
+  draw() {
+    this.scene.root.draw(this.context);
+  }
+  redraw() {
+    this.clear();
+    this.draw();
+  }
+  show() {
+    this.isShow = true;
+  }
+  update() {
     let callback = (eventType) => {
       return (e) => {
         let rect = e.target.getBoundingClientRect();
@@ -65,56 +80,32 @@ export class Stage extends JFObject {
       this.canvas.addEventListener(key, callback(eventMap[key]));
     }
 
+    this.canvas.addEventListener('mousemove', (e) => {
+      this.dragEvent = e;
+    });
+
     this.canvas.addEventListener('mousedown', (e) => {
-      let event = e;
-      callback(MouseEvent.MOUSE_DRAGGED)(e);
+      this.dragEvent = e;
+      this.dragging = true;
 
-      let mousemove = (e) => {
-        event = e;
-        callback(MouseEvent.MOUSE_DRAGGED)(e);
-      };
-
-      let timer = null;
-      (() => {
-        timer = new AnimationTimer();
-        timer.handle = (now) => {
-          mousemove(event);
-        };
-        return timer;
-      })().start();
-
-      let mouseup = () => {
-        this.canvas.removeEventListener('mousemove', mousemove);
+      let mouseup = (e) => {
+        this.dragEvent = e;
+        this.dragging = false;
         this.canvas.removeEventListener('mouseup', mouseup);
-        timer.stop();
       };
 
-      this.canvas.addEventListener('mousemove', mousemove);
       this.canvas.addEventListener('mouseup', mouseup);
     });
-  }
-  clear() {
-    this.context.setTransform(1, 0, 0, 1, 0, 0);
-    this.context.clearRect(0, 0, this.width, this.height);
-  }
-  draw() {
-    this.scene.root.draw(this.context);
-  }
-  redraw() {
-    this.clear();
-    this.draw();
-  }
-  show() {
-    this.isShow = true;
-  }
-  update() {
+
     (() => {
       let timer = new AnimationTimer();
       timer.handle = (now) => {
-        if (!this.isShow) {
-          return;
+        if (this.isShow) {
+          this.redraw();
         }
-        this.redraw();
+        if (this.dragging) {
+          callback(MouseEvent.MOUSE_DRAGGED)(this.dragEvent);
+        }
       };
       return timer;
     })().start();
