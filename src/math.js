@@ -12,12 +12,12 @@ canvasfx.math = {};
 
 /**
  * @constructor
- * @extends {canvasfx.Object}
+ * @extends {canvasfx.JFObject}
  */
 canvasfx.math.Math = function() {
-  canvasfx.Object.call(this);
+  canvasfx.JFObject.call(this);
 };
-canvasfx.inherit(canvasfx.math.Math, canvasfx.Object);
+canvasfx.inherit(canvasfx.math.Math, canvasfx.JFObject);
 
 
 /**

@@ -6,7 +6,7 @@
  */
 
 
-export class Object {
+export class JFObject {
   constructor() {
   }
   static get VERSION() {

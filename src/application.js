@@ -6,11 +6,11 @@
  */
 
 
-import {Object} from './lang';
+import {JFObject} from './lang';
 import {Stage} from './stage';
 
 
-export class Application extends Object {
+export class Application extends JFObject {
   constructor() {
     super();
     this.id = 'app';

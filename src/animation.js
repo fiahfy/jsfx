@@ -6,10 +6,10 @@
  */
 
 
-import {Object} from './lang';
+import {JFObject} from './lang';
 
 
-export class KeyFrame extends Object {
+export class KeyFrame extends JFObject {
   constructor(time, onFinished) {
     super();
     this.onFinished = onFinished;
@@ -18,7 +18,7 @@ export class KeyFrame extends Object {
 }
 
 
-export class AnimationTimer extends Object {
+export class AnimationTimer extends JFObject {
   constructor() {
     super();
     this.id = null;
@@ -46,7 +46,7 @@ export class AnimationTimer extends Object {
   start() {
     this.stop();
 
-    var animationLoop = () => {
+    let animationLoop = () => {
       this.id = AnimationTimer.requestAnimationFrame()(animationLoop);
       this.handle(Date.now());
     };

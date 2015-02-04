@@ -6,11 +6,12 @@
  */
 
 
-import {Object} from './lang';
+import {JFObject} from './lang';
 import {Bounds} from './geometry';
+import {MouseEvent} from './scene/input';
 
 
-export class Scene extends Object {
+export class Scene extends JFObject {
   constructor(root, width = null, height = null) {
     super();
     this.height = height;
@@ -25,12 +26,13 @@ export class Scene extends Object {
     this.width = width;
   }
   handleEvent(event) {
+    this.root.handleEvent(event);
     //
   }
 }
 
 
-export class Node extends Object {
+export class Node extends JFObject {
   constructor() {
     super();
     this.layoutX = 0.0;
@@ -60,15 +62,38 @@ export class Node extends Object {
     super.abstractMethod();
   }
   handleEvent(event) {
-    //
+    if (!this.contains(event.x, event.y)) {
+      return
+    }
+    if (this.onMouseClicked && event.eventType.equals(MouseEvent.MOUSE_CLICKED)) {
+      this.onMouseClicked.handle(event);
+    }
+    if (this.onMouseDragged && event.eventType.equals(MouseEvent.MOUSE_DRAGGED)) {
+      this.onMouseDragged.handle(event);
+    }
+    if (this.onMouseEntered && event.eventType.equals(MouseEvent.MOUSE_ENTERED)) {
+      this.onMouseEntered.handle(event);
+    }
+    if (this.onMouseExited && event.eventType.equals(MouseEvent.MOUSE_EXITED)) {
+      this.onMouseExited.handle(event);
+    }
+    if (this.onMouseMoved && event.eventType.equals(MouseEvent.MOUSE_MOVED)) {
+      this.onMouseMoved.handle(event);
+    }
+    if (this.onMousePressed && event.eventType.equals(MouseEvent.MOUSE_PRESSED)) {
+      this.onMousePressed.handle(event);
+    }
+    if (this.onMouseReleased && event.eventType.equals(MouseEvent.MOUSE_RELEASED)) {
+      this.onMouseReleased.handle(event);
+    }
   }
   transform(context) {
     if (this.parent) {
       this.parent.transform(context);
     }
 
-    var lb = this.layoutBounds;
-    var plb;
+    let lb = this.layoutBounds;
+    let plb;
     if (!this.parent) {
       plb = new Bounds(0, 0, 0, 0);
     } else {
@@ -118,21 +143,21 @@ export class Group extends Parent {
     this.children = nodes;
   }
   get layoutBounds() {
-    var minXArray = [];
-    var minYArray = [];
-    var maxXArray = [];
-    var maxYArray = [];
+    let minXArray = [];
+    let minYArray = [];
+    let maxXArray = [];
+    let maxYArray = [];
     this.children.forEach(function(element) {
-      var lb = element.layoutBounds;
+      let lb = element.layoutBounds;
       minXArray.push(lb.minX);
       minYArray.push(lb.minY);
       maxXArray.push(lb.maxX);
       maxYArray.push(lb.maxY);
     });
-    var minX = Math.min.apply(null, minXArray);
-    var minY = Math.min.apply(null, minYArray);
-    var maxX = Math.max.apply(null, maxXArray);
-    var maxY = Math.max.apply(null, maxYArray);
+    let minX = Math.min.apply(null, minXArray);
+    let minY = Math.min.apply(null, minYArray);
+    let maxX = Math.max.apply(null, maxXArray);
+    let maxY = Math.max.apply(null, maxYArray);
     return new Bounds(minX, minY, maxX - minX, maxY - minY);
   }
   contains(x, y) {

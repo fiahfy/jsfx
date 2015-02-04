@@ -13,10 +13,10 @@ canvasfx.util = {};
 /**
  * @param {number} millis
  * @constructor
- * @extends {canvasfx.Object}
+ * @extends {canvasfx.JFObject}
  */
 canvasfx.util.Duration = function(millis) {
-  canvasfx.Object.call(this);
+  canvasfx.JFObject.call(this);
 
   /**
    * @private
@@ -24,7 +24,7 @@ canvasfx.util.Duration = function(millis) {
    */
   this.millis_ = millis;
 };
-canvasfx.inherit(canvasfx.util.Duration, canvasfx.Object);
+canvasfx.inherit(canvasfx.util.Duration, canvasfx.JFObject);
 
 
 /**

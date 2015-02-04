@@ -6,10 +6,10 @@
  */
 
 
-import {Object} from './lang';
+import {JFObject} from './lang';
 
 
-export class Bounds extends Object {
+export class Bounds extends JFObject {
   constructor(minX, minY, width, height) {
     super();
     this.minX = minX;
@@ -26,7 +26,7 @@ export class Bounds extends Object {
 }
 
 
-export class Point extends Object {
+export class Point extends JFObject {
   constructor(x = 0.0, y = 0.0) {
     super();
     this.x = x;

@@ -7,6 +7,7 @@
 
 
 import {Application} from '../src/application';
+import {EventHandler} from '../src/event';
 import {Scene, Group} from '../src/scene';
 import {Stage} from '../src/stage';
 import {Color} from '../src/scene/paint';
@@ -42,13 +43,27 @@ class TestApp extends Application {
     let group = new Group(circle, rectangle);
     children.push(group);
 
-    rectangle.setOnMouseClicked((function() {
+    rectangle.onMouseEntered = (() => {
       var e = new EventHandler();
-      e.handle = function(event) {
-        console.log(1);
+      e.handle = (event) => {
+        rectangle.fill = Color.color(0, 0, 0, 0.5);
       };
       return e;
-    })());
+    })();
+    rectangle.onMouseExited = (() => {
+      var e = new EventHandler();
+      e.handle = (event) => {
+        rectangle.fill = Color.color(0, 0, 0, 1);
+      };
+      return e;
+    })();
+    circle.onMouseMoved = (() => {
+      var e = new EventHandler();
+      e.handle = (event) => {
+        //console.log(2);
+      };
+      return e;
+    })();
 
     primaryStage.show();
   }

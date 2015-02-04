@@ -6,10 +6,10 @@
  */
 
 
-import {Object} from '../lang';
+import {JFObject} from '../lang';
 
 
-export class Color extends Object {
+export class Color extends JFObject {
   constructor(red, green, blue, opacity = 1.0) {
     super();
     this.red = red;

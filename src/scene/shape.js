@@ -7,7 +7,7 @@
 
 
 import {Bounds, Point} from '../geometry';
-import {Object} from '../lang';
+import {JFObject} from '../lang';
 import {Node} from '../scene';
 import {Color} from './paint';
 

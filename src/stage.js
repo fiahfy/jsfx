@@ -6,11 +6,12 @@
  */
 
 
-import {Object} from './lang';
+import {JFObject} from './lang';
 import {AnimationTimer} from './animation.js';
+import {MouseEvent} from './scene/input.js';
 
 
-export class Stage extends Object {
+export class Stage extends JFObject {
   constructor(id) {
     super();
     this.canvas = window.document.createElement('canvas');
@@ -41,7 +42,56 @@ export class Stage extends Object {
     }
   }
   addEventListener() {
-    //
+    let callback = (eventType) => {
+      return (e) => {
+        let rect = e.target.getBoundingClientRect();
+        let x = e.clientX - rect.left;
+        let y = e.clientY - rect.top;
+        let event = new MouseEvent(eventType, x, y);
+        this.scene.handleEvent(event);
+      };
+    };
+
+    let eventMap = {
+      'click': MouseEvent.MOUSE_CLICKED,
+      'mouseover': MouseEvent.MOUSE_ENTERED,
+      'mouseout': MouseEvent.MOUSE_EXITED,
+      'mousemove': MouseEvent.MOUSE_MOVED,
+      'mousedown': MouseEvent.MOUSE_PRESSED,
+      'mouseup': MouseEvent.MOUSE_RELEASED
+    };
+
+    for (let key of Object.keys(eventMap)) {
+      this.canvas.addEventListener(key, callback(eventMap[key]));
+    }
+
+    this.canvas.addEventListener('mousedown', (e) => {
+      let event = e;
+      callback(MouseEvent.MOUSE_DRAGGED)(e);
+
+      let mousemove = (e) => {
+        event = e;
+        callback(MouseEvent.MOUSE_DRAGGED)(e);
+      };
+
+      let timer = null;
+      (() => {
+        timer = new AnimationTimer();
+        timer.handle = (now) => {
+          mousemove(event);
+        };
+        return timer;
+      })().start();
+
+      let mouseup = () => {
+        this.canvas.removeEventListener('mousemove', mousemove);
+        this.canvas.removeEventListener('mouseup', mouseup);
+        timer.stop();
+      };
+
+      this.canvas.addEventListener('mousemove', mousemove);
+      this.canvas.addEventListener('mouseup', mouseup);
+    });
   }
   clear() {
     this.context.setTransform(1, 0, 0, 1, 0, 0);
@@ -61,9 +111,10 @@ export class Stage extends Object {
     (() => {
       let timer = new AnimationTimer();
       timer.handle = (now) => {
-        if (!this.isShow) return;
+        if (!this.isShow) {
+          return;
+        }
         this.redraw();
-        timer.stop();
       };
       return timer;
     })().start();
