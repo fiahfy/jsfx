@@ -13,10 +13,10 @@ import {Stage} from './stage';
 export class Application extends JFObject {
   constructor() {
     super();
-    this.id = 'app';
-    this.stage = new Stage(this.id);
+    this.id_ = 'app';
+    this.stage_ = new Stage(this.id_);
 
-    this.start(this.stage);
+    this.start(this.stage_);
   }
   static load(applicationClass) {
     new applicationClass();

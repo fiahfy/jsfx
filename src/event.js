@@ -12,13 +12,16 @@ import {JFObject} from './lang';
 export class EventType extends JFObject {
   constructor(name = 'ROOT') {
     super();
-    this.name = name;
+    this.name_ = name;
   }
   equals(obj) {
-    return this.name == obj.name;
+    return this.name_ == obj.name;
+  }
+  get name() {
+    return this.name_;
   }
   toString() {
-    return this.name;
+    return this.name_;
   }
 }
 
@@ -45,18 +48,11 @@ export class ActionEvent extends Event {
 }
 
 
-export class EventListener extends JFObject {
+export class EventHandler extends JFObject {
   constructor() {
     super();
   }
-}
-
-
-export class EventHandler extends EventListener {
-  constructor() {
-    super();
-  }
-  hander() {
+  handle() {
     super.abstractMethod();
   }
 }

@@ -58,11 +58,17 @@ class TestApp extends Application {
       return e;
     })();
     circle.onMouseDragged = (() => {
-      var e = new EventHandler();
-      e.handle = (event) => {
-        console.log(event);
-      };
-      return e;
+      return new (class extends EventHandler {
+        handle(event) {
+          console.log(event);
+        }
+      })();
+      //return new Hoge();
+      //var e = new EventHandler();
+      //e.handle = (event) => {
+      //  console.log(event);
+      //};
+      //return e;
     })();
 
     primaryStage.show();

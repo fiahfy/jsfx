@@ -38,8 +38,8 @@ export class Stage extends JFObject {
     } else {
       this.canvas.width = this.width;
       this.canvas.height = this.height;
-      this.scene_.width = this.width;
-      this.scene_.height = this.height;
+      this.scene_.width_ = this.width;
+      this.scene_.height_ = this.height;
     }
   }
   clear() {
@@ -63,7 +63,7 @@ export class Stage extends JFObject {
         let x = e.clientX - rect.left;
         let y = e.clientY - rect.top;
         let event = new MouseEvent(eventType, x, y);
-        this.scene.handleEvent(event);
+        this.scene.handleEvent_(event);
       };
     };
 
