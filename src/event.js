@@ -37,17 +37,6 @@ export class Event extends JFObject {
 }
 
 
-export class ActionEvent extends Event {
-  constructor() {
-    super();
-    this.eventType = ActionEvent.ACTION;
-  }
-  static get ACTION() {
-    return new EventType('ACTION');
-  }
-}
-
-
 export class EventHandler extends JFObject {
   constructor() {
     super();

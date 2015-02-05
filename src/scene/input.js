@@ -20,8 +20,8 @@ export class InputEvent extends Event {
 export class MouseEvent extends InputEvent {
   constructor(eventType, x, y) {
     super(eventType);
-    this.x = x;
-    this.y = y;
+    this.x_ = x;
+    this.y_ = y;
   }
   static get MOUSE_CLICKED() {
     return new EventType('MOUSE_CLICKED');
@@ -43,5 +43,11 @@ export class MouseEvent extends InputEvent {
   }
   static get MOUSE_RELEASED() {
     return new EventType('MOUSE_RELEASED');
+  }
+  get x() {
+    return this.x_;
+  }
+  get y() {
+    return this.y_;
   }
 }
