@@ -29,7 +29,7 @@ export class AnimationTimer extends JFObject {
     super();
     this.id_ = null;
   }
-  static cancelAnimationFrame_() {
+  static _cancelAnimationFrame_() {
     return window.cancelAnimationFrame ||
       window.cancelRequestAnimationFrame ||
       window.webkitCancelRequestAnimationFrame ||
@@ -38,10 +38,7 @@ export class AnimationTimer extends JFObject {
       window.msCancelRequestAnimationFrame ||
       (id => { window.clearTimeout(id); });
   }
-  handle(now) {
-    super.abstractMethod();
-  }
-  static requestAnimationFrame_() {
+  static _requestAnimationFrame_() {
     return window.requestAnimationFrame ||
       window.webkitRequestAnimationFrame ||
       window.mozRequestAnimationFrame ||
@@ -49,17 +46,20 @@ export class AnimationTimer extends JFObject {
       window.msRequestAnimationFrame ||
       (callback => { window.setTimeout(callback, 1000 / 60); });
   }
+  handle(now) {
+    super.abstractMethod();
+  }
   start() {
     this.stop();
 
     let animationLoop = () => {
-      this.id_ = AnimationTimer.requestAnimationFrame_()(animationLoop);
+      this.id_ = AnimationTimer._requestAnimationFrame_()(animationLoop);
       this.handle(Date.now());
     };
     animationLoop();
   }
   stop() {
-    AnimationTimer.cancelAnimationFrame_()(this.id_);
+    AnimationTimer._cancelAnimationFrame_()(this.id_);
     this.id_ = null;
   }
 }

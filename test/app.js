@@ -72,6 +72,9 @@ class TestApp extends Application {
     })();
 
     primaryStage.show();
+    setTimeout(() => {
+      primaryStage.hide();
+    }, 2000);
   }
   getGrid() {
     let g = new Group();

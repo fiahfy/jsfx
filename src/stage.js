@@ -11,21 +11,32 @@ import {AnimationTimer} from './animation.js';
 import {MouseEvent} from './scene/input.js';
 
 
-export class Stage extends JFObject {
-  constructor(id) {
+export class JFWindow extends JFObject {
+  constructor() {
     super();
-    this.canvas = window.document.createElement('canvas');
-    this.context = this.canvas.getContext('2d');
-    this.dragEvent = null;
-    this.dragging = false;
-    this.element = window.document.getElementById(id);
+    this.canvas_ = window.document.createElement('canvas');
+    this.context_ = this.canvas_.getContext('2d');
+    this.dragEvent_ = null;
+    this.dragging_ = false;
+    this.element_ = null;
+    this.height_ = 0;
+    this.id_ = null;
     this.scene_ = null;
-    this.height = this.element.offsetHeight;
-    this.isShow = false;
-    this.width = this.element.offsetWidth;
-
-    this.element.appendChild(this.canvas);
-    this.update();
+    this.showing_ = false;
+    this.width_ = 0;
+  }
+  _setId(value) {
+    this.id_ = value;
+    this.element_ = window.document.getElementById(this.id_);
+    this.height_ = this.element_.offsetHeight;
+    this.width_ = this.element_.offsetWidth;
+    this.element_.appendChild(this.canvas_);
+  }
+  get height() {
+    return this.height_;
+  }
+  hide() {
+    this.showing_ = false;
   }
   get scene() {
     return this.scene_;
@@ -33,37 +44,47 @@ export class Stage extends JFObject {
   set scene(value) {
     this.scene_ = value;
     if (this.scene_.width && this.scene_.height) {
-      this.width = this.scene_.width;
-      this.height = this.scene_.height;
+      this.width_ = this.scene_.width;
+      this.height_ = this.scene_.height;
     } else {
-      this.canvas.width = this.width;
-      this.canvas.height = this.height;
-      this.scene_.width_ = this.width;
-      this.scene_.height_ = this.height;
+      this.scene_._setWidth(this.width_);
+      this.scene_._setHeight(this.height_);
     }
-  }
-  clear() {
-    this.context.setTransform(1, 0, 0, 1, 0, 0);
-    this.context.clearRect(0, 0, this.width, this.height);
-  }
-  draw() {
-    this.scene.root.draw(this.context);
-  }
-  redraw() {
-    this.clear();
-    this.draw();
+    this.canvas_.width = this.width_;
+    this.canvas_.height = this.height_;
   }
   show() {
-    this.isShow = true;
+    this.showing_ = true;
   }
-  update() {
+  get showing() {
+    return this.showing_;
+  }
+  get width() {
+    return this.width_;
+  }
+}
+
+
+export class Stage extends JFWindow {
+  constructor() {
+    super();
+    this._update();
+  }
+  _clear() {
+    this.context_.setTransform(1, 0, 0, 1, 0, 0);
+    this.context_.clearRect(0, 0, this.width_, this.height_);
+  }
+  _draw() {
+    this.scene.root._draw(this.context_);
+  }
+  _update() {
     let callback = (eventType) => {
       return (e) => {
         let rect = e.target.getBoundingClientRect();
         let x = e.clientX - rect.left;
         let y = e.clientY - rect.top;
         let event = new MouseEvent(eventType, x, y);
-        this.scene.handleEvent_(event);
+        this.scene._handleEvent(event);
       };
     };
 
@@ -77,37 +98,44 @@ export class Stage extends JFObject {
     };
 
     for (let key of Object.keys(eventMap)) {
-      this.canvas.addEventListener(key, callback(eventMap[key]));
+      this.canvas_.addEventListener(key, callback(eventMap[key]));
     }
 
-    this.canvas.addEventListener('mousemove', (e) => {
-      this.dragEvent = e;
+    // attach drag event listener
+    this.canvas_.addEventListener('mousemove', (e) => {
+      this.dragEvent_ = e;
     });
 
-    this.canvas.addEventListener('mousedown', (e) => {
-      this.dragEvent = e;
-      this.dragging = true;
+    this.canvas_.addEventListener('mousedown', (e) => {
+      this.dragEvent_ = e;
+      this.dragging_ = true;
 
       let mouseup = (e) => {
-        this.dragEvent = e;
-        this.dragging = false;
-        this.canvas.removeEventListener('mouseup', mouseup);
+        this.dragEvent_ = e;
+        this.dragging_ = false;
+        this.canvas_.removeEventListener('mouseup', mouseup);
       };
 
-      this.canvas.addEventListener('mouseup', mouseup);
+      this.canvas_.addEventListener('mouseup', mouseup);
     });
 
+    // animation loop
     (() => {
       let timer = new AnimationTimer();
       timer.handle = (now) => {
-        if (this.isShow) {
-          this.redraw();
+        this._clear();
+        if (!this.showing_) {
+          return;
         }
-        if (this.dragging) {
-          callback(MouseEvent.MOUSE_DRAGGED)(this.dragEvent);
+        this._draw();
+        if (this.dragging_) {
+          callback(MouseEvent.MOUSE_DRAGGED)(this.dragEvent_);
         }
       };
       return timer;
     })().start();
+  }
+  close() {
+    this.hide();
   }
 }

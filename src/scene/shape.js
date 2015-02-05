@@ -50,19 +50,7 @@ export class Circle extends Shape {
     this.radius = radius;
     this.fill = Color.BLACK;
   }
-  get currentCenterX() {
-    return this.centerX + this.layoutX + this.translateX;
-  }
-  get currentCenterY() {
-    return this.centerY + this.layoutY + this.translateY;
-  }
-  get layoutBounds() {
-    return new Bounds(
-      this.centerX - this.radius, this.centerY - this.radius,
-      2 * this.radius, 2 * this.radius
-    );
-  }
-  contains(x, y = null) {
+  _contains(x, y = null) {
     if (x instanceof Point) {
       y = x.y;
       x = x.x;
@@ -70,12 +58,12 @@ export class Circle extends Shape {
     let point = new Point(this.currentCenterX, this.currentCenterY);
     return point.distance(x, y) <= this.radius;
   }
-  draw(context) {
+  _draw(context) {
     if (this.currentFill) {
       context.fillStyle = this.currentFill.web;
       context.globalAlpha = this.currentFill.opacity;
       context.setTransform(1, 0, 0, 1, 0, 0);
-      this.transform(context);
+      this._transform(context);
       context.beginPath();
       context.arc(
         0, 0, this.radius,
@@ -101,7 +89,7 @@ export class Circle extends Shape {
           break;
       }
       context.setTransform(1, 0, 0, 1, 0, 0);
-      this.transform(context);
+      this._transform(context);
       context.beginPath();
       context.arc(
         0, 0, this.radius + offset,
@@ -109,6 +97,18 @@ export class Circle extends Shape {
       );
       context.stroke();
     }
+  }
+  get currentCenterX() {
+    return this.centerX + this.layoutX + this.translateX;
+  }
+  get currentCenterY() {
+    return this.centerY + this.layoutY + this.translateY;
+  }
+  get layoutBounds() {
+    return new Bounds(
+      this.centerX - this.radius, this.centerY - this.radius,
+      2 * this.radius, 2 * this.radius
+    );
   }
 }
 
@@ -124,16 +124,7 @@ export class Rectangle extends Shape {
     this.y = y;
     this.fill = Color.BLACK;
   }
-  get currentX() {
-    return this.x + this.layoutX + this.translateX;
-  }
-  get currentY() {
-    return this.y + this.layoutY + this.translateY;
-  }
-  get layoutBounds() {
-    return new Bounds(this.x, this.y, this.width, this.height);
-  }
-  contains(x, y = null) {
+  _contains(x, y = null) {
     // TODO: arc corner
     if (x instanceof Point) {
       y = x.y;
@@ -183,12 +174,12 @@ export class Rectangle extends Shape {
 
     return false;
   }
-  draw(context) {
+  _draw(context) {
     if (this.currentFill) {
       context.fillStyle = this.currentFill.web;
       context.globalAlpha = this.currentFill.opacity;
       context.setTransform(1, 0, 0, 1, 0, 0);
-      this.transform(context);
+      this._transform(context);
       context.beginPath();
       context.moveTo(
         parseInt(-this.width / 2 + this.arcWidth),
@@ -266,7 +257,7 @@ export class Rectangle extends Shape {
         offsetSize / 2 + offsetPosition,
         offsetSize / 2 + offsetPosition
       );
-      this.transform(context);
+      this._transform(context);
       context.beginPath();
       context.moveTo(
         parseInt(-(this.width + offsetSize) / 2 + this.arcWidth),
@@ -315,6 +306,15 @@ export class Rectangle extends Shape {
       context.stroke();
     }
   }
+  get currentX() {
+    return this.x + this.layoutX + this.translateX;
+  }
+  get currentY() {
+    return this.y + this.layoutY + this.translateY;
+  }
+  get layoutBounds() {
+    return new Bounds(this.x, this.y, this.width, this.height);
+  }
 }
 
 
@@ -326,6 +326,34 @@ export class Line extends Shape {
     this.startX = startX;
     this.startY = startY;
     this.stroke = Color.BLACK;
+  }
+  _contains(x, y = null) {
+    return false;
+  }
+  _draw(context) {
+    if (this.currentStroke) {
+      context.strokeStyle = this.currentStroke.web;
+      context.globalAlpha = this.currentStroke.opacity;
+      context.lineWidth = this.strokeWidth;
+
+      var offset = (this.strokeWidth % 2) / 2;
+
+      var lb = this.layoutBounds;
+
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      context.transform(1, 0, 0, 1, offset, offset);
+      this._transform(context);
+      context.beginPath();
+      context.moveTo(
+        parseInt(this.startX - lb.minX - lb.width / 2),
+        parseInt(this.startY - lb.minY - lb.height / 2)
+      );
+      context.lineTo(
+        parseInt(this.endX - lb.minX - lb.width / 2),
+        parseInt(this.endY - lb.minY - lb.height / 2)
+      );
+      context.stroke();
+    }
   }
   get currentEndX() {
     return this.endX + this.layoutX + this.translateX;
@@ -344,33 +372,5 @@ export class Line extends Shape {
       Math.min(this.startX, this.endX), Math.min(this.startY, this.endY),
       Math.abs(this.startX - this.endX), Math.abs(this.startY - this.endY)
     );
-  }
-  contains(x, y = null) {
-    return false;
-  }
-  draw(context) {
-    if (this.currentStroke) {
-      context.strokeStyle = this.currentStroke.web;
-      context.globalAlpha = this.currentStroke.opacity;
-      context.lineWidth = this.strokeWidth;
-
-      var offset = (this.strokeWidth % 2) / 2;
-
-      var lb = this.layoutBounds;
-
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      context.transform(1, 0, 0, 1, offset, offset);
-      this.transform(context);
-      context.beginPath();
-      context.moveTo(
-        parseInt(this.startX - lb.minX - lb.width / 2),
-        parseInt(this.startY - lb.minY - lb.height / 2)
-      );
-      context.lineTo(
-        parseInt(this.endX - lb.minX - lb.width / 2),
-        parseInt(this.endY - lb.minY - lb.height / 2)
-      );
-      context.stroke();
-    }
   }
 }

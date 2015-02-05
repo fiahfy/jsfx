@@ -12,10 +12,10 @@ import {JFObject} from '../lang';
 export class Color extends JFObject {
   constructor(red, green, blue, opacity = 1.0) {
     super();
-    this.red = red;
-    this.green = green;
-    this.blue = blue;
-    this.opacity = opacity;
+    this.red_ = red;
+    this.green_ = green;
+    this.blue_ = blue;
+    this.opacity_ = opacity;
   }
   static color(...args) {
     return new Color(...args);
@@ -67,22 +67,34 @@ export class Color extends JFObject {
   static get BLUE() {
     return Color.web('#0000ff');
   }
+  get blue() {
+    return this.blue_;
+  }
   static get GRAY() {
     return Color.web('#808080');
   }
   static get GREEN() {
     return Color.web('#00ff00');
   }
+  get green() {
+    return this.green_;
+  }
+  get opacity() {
+    return this.opacity_;
+  }
   static get RED() {
     return Color.web('#ff0000');
   }
-  static get WHITE() {
-    return Color.web('#ffffff');
+  get red() {
+    return this.red_;
   }
   get web() {
     return '#' +
-      ('00' + parseInt(this.red * 255).toString(16)).slice(-2) +
-      ('00' + parseInt(this.green * 255).toString(16)).slice(-2) +
-      ('00' + parseInt(this.blue * 255).toString(16)).slice(-2);
+      ('00' + parseInt(this.red_ * 255).toString(16)).slice(-2) +
+      ('00' + parseInt(this.green_ * 255).toString(16)).slice(-2) +
+      ('00' + parseInt(this.blue_ * 255).toString(16)).slice(-2);
+  }
+  static get WHITE() {
+    return Color.web('#ffffff');
   }
 }

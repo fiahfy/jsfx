@@ -26,9 +26,15 @@ export class Scene extends JFObject {
     this.width_ = width;
   }
   // TODO: 
-  handleEvent_(event) {
-    this.root.handleEvent_(event);
+  _handleEvent(event) {
+    this.root._handleEvent(event);
     //
+  }
+  _setHeight(value) {
+    this.height_ = value;
+  }
+  _setWidth(value) {
+    this.width_ = value;
   }
   get height() {
     return this.height_;
@@ -107,15 +113,15 @@ export class Node extends JFObject {
     this.translateX_ = 0.0;
     this.translateY_ = 0.0;
   }
-  contains(x, y) {
+  _contains(x, y) {
     super.abstractMethod();
   }
-  draw(context) {
+  _draw(context) {
     super.abstractMethod();
   }
   // TODO:
-  handleEvent_(event) {
-    if (!this.contains(event.x, event.y)) {
+  _handleEvent(event) {
+    if (!this._contains(event.x, event.y)) {
       return
     }
     if (this.onMouseClicked_ && event.eventType.equals(MouseEvent.MOUSE_CLICKED)) {
@@ -139,6 +145,50 @@ export class Node extends JFObject {
     if (this.onMouseReleased_ && event.eventType.equals(MouseEvent.MOUSE_RELEASED)) {
       this.onMouseReleased_.handle(event);
     }
+  }
+  _setParent(value) {
+    this.parent_ = value;
+  }
+  // TODO:
+  _transform(context) {
+    if (this.parent_) {
+      this.parent_._transform(context);
+    }
+
+    let lb = this.layoutBounds;
+    let plb;
+    if (!this.parent_) {
+      plb = new Bounds(0, 0, 0, 0);
+    } else {
+      plb = this.parent_.layoutBounds;
+    }
+    context.transform(
+      1, 0, 0, 1,
+      parseInt(lb.minX + lb.width / 2 -
+      plb.minX - plb.width / 2),
+      parseInt(lb.minY + lb.height / 2 -
+      plb.minY - plb.height / 2)
+    );
+
+    // translate
+    context.transform(
+      1, 0, 0, 1,
+      parseInt(this.translateX_ + this.layoutX_),
+      parseInt(this.translateY_ + this.layoutY_)
+    );
+    // rotate
+    context.transform(
+      Math.cos(this.rotate_ * Math.PI / 180),
+      Math.sin(this.rotate_ * Math.PI / 180),
+      -Math.sin(this.rotate_ * Math.PI / 180),
+      Math.cos(this.rotate_ * Math.PI / 180),
+      0, 0
+    );
+    // scale
+    context.transform(
+      this.scaleX_, 0, 0,
+      this.scaleY_, 0, 0
+    );
   }
   get layoutBounds() {
     super.abstractMethod();
@@ -224,47 +274,6 @@ export class Node extends JFObject {
   set scaleY(value) {
     this.scaleY_ = value;
   }
-  // TODO:
-  transform(context) {
-    if (this.parent_) {
-      this.parent_.transform(context);
-    }
-
-    let lb = this.layoutBounds;
-    let plb;
-    if (!this.parent_) {
-      plb = new Bounds(0, 0, 0, 0);
-    } else {
-      plb = this.parent_.layoutBounds;
-    }
-    context.transform(
-      1, 0, 0, 1,
-      parseInt(lb.minX + lb.width / 2 -
-      plb.minX - plb.width / 2),
-      parseInt(lb.minY + lb.height / 2 -
-      plb.minY - plb.height / 2)
-    );
-
-    // translate
-    context.transform(
-      1, 0, 0, 1,
-      parseInt(this.translateX_ + this.layoutX_),
-      parseInt(this.translateY_ + this.layoutY_)
-    );
-    // rotate
-    context.transform(
-      Math.cos(this.rotate_ * Math.PI / 180),
-      Math.sin(this.rotate_ * Math.PI / 180),
-      -Math.sin(this.rotate_ * Math.PI / 180),
-      Math.cos(this.rotate_ * Math.PI / 180),
-      0, 0
-    );
-    // scale
-    context.transform(
-      this.scaleX_, 0, 0,
-      this.scaleY_, 0, 0
-    );
-  }
   get translateX() {
     return this.translateX_;
   }
@@ -292,6 +301,22 @@ export class Group extends Parent {
     super();
     this.children_ = nodes;
   }
+  _contains(x, y) {
+    return this.children_.some(element => {
+      return element._contains(x, y);
+    });
+  }
+  _draw(context) {
+    this.children_.forEach(element => {
+      element._setParent(this);
+      element._draw(context);
+    });
+  }
+  _handleEvent(event) {
+    this.children_.forEach(element => {
+      element._handleEvent(event);
+    });
+  }
   get children() {
     return this.children_;
   }
@@ -312,21 +337,5 @@ export class Group extends Parent {
     let maxX = Math.max.apply(null, maxXArray);
     let maxY = Math.max.apply(null, maxYArray);
     return new Bounds(minX, minY, maxX - minX, maxY - minY);
-  }
-  contains(x, y) {
-    return this.children_.some(element => {
-      return element.contains(x, y);
-    });
-  }
-  draw(context) {
-    this.children_.forEach(element => {
-      element.parent_ = this;
-      element.draw(context);
-    });
-  }
-  handleEvent_(event) {
-    this.children_.forEach(element => {
-      element.handleEvent_(event);
-    });
   }
 }
