@@ -6,7 +6,7 @@
  */
 
 
-import {EventType, Event} from '../event';
+import {EventType, Event} from '../event.js';
 
 
 export class InputEvent extends Event {

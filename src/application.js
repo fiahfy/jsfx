@@ -6,8 +6,8 @@
  */
 
 
-import {JFObject} from './lang';
-import {Stage} from './stage';
+import {JFObject} from './lang.js';
+import {Stage} from './stage.js';
 
 
 export class Application extends JFObject {

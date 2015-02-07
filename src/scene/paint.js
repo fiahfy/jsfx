@@ -6,7 +6,7 @@
  */
 
 
-import {JFObject} from '../lang';
+import {JFObject} from '../lang.js';
 
 
 export class Color extends JFObject {
@@ -16,6 +16,24 @@ export class Color extends JFObject {
     this.green_ = green;
     this.blue_ = blue;
     this.opacity_ = opacity;
+  }
+  static get BLACK() {
+    return Color.web('#000000');
+  }
+  static get BLUE() {
+    return Color.web('#0000ff');
+  }
+  static get GRAY() {
+    return Color.web('#808080');
+  }
+  static get GREEN() {
+    return Color.web('#00ff00');
+  }
+  static get RED() {
+    return Color.web('#ff0000');
+  }
+  static get WHITE() {
+    return Color.web('#ffffff');
   }
   static color(...args) {
     return new Color(...args);
@@ -27,7 +45,7 @@ export class Color extends JFObject {
     opacity /= 255;
     return new Color(red, green, blue, opacity);
   }
-  static web(colorString) {
+  static web(colorString, opacity = 1.0) {
     // TODO: parse web color string
     colorString = colorString.substr(1);
     switch (colorString.length) {
@@ -36,7 +54,7 @@ export class Color extends JFObject {
           colorString.charAt(0) + colorString.charAt(0) +
           colorString.charAt(1) + colorString.charAt(1) +
           colorString.charAt(2) + colorString.charAt(2) +
-          'ff';
+          ('00' + parseInt(opacity * 255).toString(16)).slice(-2);
         break;
       case 4:
         colorString =
@@ -46,7 +64,7 @@ export class Color extends JFObject {
           colorString.charAt(3) + colorString.charAt(3);
         break;
       case 6:
-        colorString += 'ff';
+        colorString += ('00' + parseInt(opacity * 255).toString(16)).slice(-2);
         break;
       case 8:
         break;
@@ -57,24 +75,12 @@ export class Color extends JFObject {
     let red = parseInt(colorString.substr(0, 2), 16) / 255;
     let green = parseInt(colorString.substr(2, 2), 16) / 255;
     let blue = parseInt(colorString.substr(4, 2), 16) / 255;
-    let opacity = parseInt(colorString.substr(6, 2), 16) / 255;
+    opacity = parseInt(colorString.substr(6, 2), 16) / 255;
 
     return new Color(red, green, blue, opacity);
   }
-  static get BLACK() {
-    return Color.web('#000000');
-  }
-  static get BLUE() {
-    return Color.web('#0000ff');
-  }
   get blue() {
     return this.blue_;
-  }
-  static get GRAY() {
-    return Color.web('#808080');
-  }
-  static get GREEN() {
-    return Color.web('#00ff00');
   }
   get green() {
     return this.green_;
@@ -82,19 +88,13 @@ export class Color extends JFObject {
   get opacity() {
     return this.opacity_;
   }
-  static get RED() {
-    return Color.web('#ff0000');
-  }
   get red() {
     return this.red_;
   }
-  get web() {
+  get _colorString() {
     return '#' +
       ('00' + parseInt(this.red_ * 255).toString(16)).slice(-2) +
       ('00' + parseInt(this.green_ * 255).toString(16)).slice(-2) +
       ('00' + parseInt(this.blue_ * 255).toString(16)).slice(-2);
-  }
-  static get WHITE() {
-    return Color.web('#ffffff');
   }
 }

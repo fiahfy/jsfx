@@ -6,7 +6,7 @@
  */
 
 
-import {JFObject} from './lang';
+import {JFObject} from './lang.js';
 
 
 export class KeyFrame extends JFObject {
@@ -29,6 +29,22 @@ export class AnimationTimer extends JFObject {
     super();
     this.id_ = null;
   }
+  handle(now) {
+    super.abstractMethod();
+  }
+  start() {
+    this.stop();
+
+    let animationLoop = () => {
+      this.id_ = AnimationTimer._requestAnimationFrame_()(animationLoop);
+      this.handle(Date.now());
+    };
+    animationLoop();
+  }
+  stop() {
+    AnimationTimer._cancelAnimationFrame_()(this.id_);
+    this.id_ = null;
+  }
   static _cancelAnimationFrame_() {
     return window.cancelAnimationFrame ||
       window.cancelRequestAnimationFrame ||
@@ -45,21 +61,5 @@ export class AnimationTimer extends JFObject {
       window.oRequestAnimationFrame ||
       window.msRequestAnimationFrame ||
       (callback => { window.setTimeout(callback, 1000 / 60); });
-  }
-  handle(now) {
-    super.abstractMethod();
-  }
-  start() {
-    this.stop();
-
-    let animationLoop = () => {
-      this.id_ = AnimationTimer._requestAnimationFrame_()(animationLoop);
-      this.handle(Date.now());
-    };
-    animationLoop();
-  }
-  stop() {
-    AnimationTimer._cancelAnimationFrame_()(this.id_);
-    this.id_ = null;
   }
 }

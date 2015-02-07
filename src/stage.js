@@ -6,7 +6,7 @@
  */
 
 
-import {JFObject} from './lang';
+import {JFObject} from './lang.js';
 import {AnimationTimer} from './animation.js';
 import {MouseEvent} from './scene/input.js';
 
@@ -24,13 +24,6 @@ export class JFWindow extends JFObject {
     this.scene_ = null;
     this.showing_ = false;
     this.width_ = 0;
-  }
-  _setId(value) {
-    this.id_ = value;
-    this.element_ = window.document.getElementById(this.id_);
-    this.height_ = this.element_.offsetHeight;
-    this.width_ = this.element_.offsetWidth;
-    this.element_.appendChild(this.canvas_);
   }
   get height() {
     return this.height_;
@@ -62,6 +55,13 @@ export class JFWindow extends JFObject {
   get width() {
     return this.width_;
   }
+  _setId(value) {
+    this.id_ = value;
+    this.element_ = window.document.getElementById(this.id_);
+    this.height_ = this.element_.offsetHeight;
+    this.width_ = this.element_.offsetWidth;
+    this.element_.appendChild(this.canvas_);
+  }
 }
 
 
@@ -69,6 +69,9 @@ export class Stage extends JFWindow {
   constructor() {
     super();
     this._update();
+  }
+  close() {
+    this.hide();
   }
   _clear() {
     this.context_.setTransform(1, 0, 0, 1, 0, 0);
@@ -134,8 +137,5 @@ export class Stage extends JFWindow {
       };
       return timer;
     })().start();
-  }
-  close() {
-    this.hide();
   }
 }

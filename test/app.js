@@ -6,12 +6,12 @@
  */
 
 
-import {Application} from '../src/application';
-import {EventHandler} from '../src/event';
-import {Scene, Group} from '../src/scene';
-import {Stage} from '../src/stage';
-import {Color} from '../src/scene/paint';
-import {StrokeType, Circle, Rectangle, Line} from '../src/scene/shape';
+import {Application} from '../src/application.js';
+import {EventHandler} from '../src/event.js';
+import {Scene, Group} from '../src/scene.js';
+import {Stage} from '../src/stage.js';
+import {Color} from '../src/scene/paint.js';
+import {StrokeType, Circle, Rectangle, Line} from '../src/scene/shape.js';
 
 
 class TestApp extends Application {

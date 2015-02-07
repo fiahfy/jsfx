@@ -6,7 +6,7 @@
  */
 
 
-import {JFObject} from './lang';
+import {JFObject} from './lang.js';
 
 
 export class EventType extends JFObject {

@@ -6,9 +6,9 @@
  */
 
 
-import {JFObject} from './lang';
-import {Bounds} from './geometry';
-import {MouseEvent} from './scene/input';
+import {JFObject} from './lang.js';
+import {Bounds} from './geometry.js';
+import {MouseEvent} from './scene/input.js';
 
 
 export class Scene extends JFObject {
@@ -24,17 +24,6 @@ export class Scene extends JFObject {
     this.onMouseReleased_ = null;
     this.root_ = root;
     this.width_ = width;
-  }
-  // TODO: 
-  _handleEvent(event) {
-    this.root._handleEvent(event);
-    //
-  }
-  _setHeight(value) {
-    this.height_ = value;
-  }
-  _setWidth(value) {
-    this.width_ = value;
   }
   get height() {
     return this.height_;
@@ -90,6 +79,16 @@ export class Scene extends JFObject {
   get width() {
     return this.width_;
   }
+  _handleEvent(event) {
+    this.root._handleEvent(event);
+    //
+  }
+  _setHeight(value) {
+    this.height_ = value;
+  }
+  _setWidth(value) {
+    this.width_ = value;
+  }
 }
 
 
@@ -112,83 +111,6 @@ export class Node extends JFObject {
     this.scaleY_ = 1.0;
     this.translateX_ = 0.0;
     this.translateY_ = 0.0;
-  }
-  _contains(x, y) {
-    super.abstractMethod();
-  }
-  _draw(context) {
-    super.abstractMethod();
-  }
-  // TODO:
-  _handleEvent(event) {
-    if (!this._contains(event.x, event.y)) {
-      return
-    }
-    if (this.onMouseClicked_ && event.eventType.equals(MouseEvent.MOUSE_CLICKED)) {
-      this.onMouseClicked_.handle(event);
-    }
-    if (this.onMouseDragged_ && event.eventType.equals(MouseEvent.MOUSE_DRAGGED)) {
-      this.onMouseDragged_.handle(event);
-    }
-    if (this.onMouseEntered_ && event.eventType.equals(MouseEvent.MOUSE_ENTERED)) {
-      this.onMouseEntered_.handle(event);
-    }
-    if (this.onMouseExited_ && event.eventType.equals(MouseEvent.MOUSE_EXITED)) {
-      this.onMouseExited_.handle(event);
-    }
-    if (this.onMouseMoved_ && event.eventType.equals(MouseEvent.MOUSE_MOVED)) {
-      this.onMouseMoved_.handle(event);
-    }
-    if (this.onMousePressed_ && event.eventType.equals(MouseEvent.MOUSE_PRESSED)) {
-      this.onMousePressed_.handle(event);
-    }
-    if (this.onMouseReleased_ && event.eventType.equals(MouseEvent.MOUSE_RELEASED)) {
-      this.onMouseReleased_.handle(event);
-    }
-  }
-  _setParent(value) {
-    this.parent_ = value;
-  }
-  // TODO:
-  _transform(context) {
-    if (this.parent_) {
-      this.parent_._transform(context);
-    }
-
-    let lb = this.layoutBounds;
-    let plb;
-    if (!this.parent_) {
-      plb = new Bounds(0, 0, 0, 0);
-    } else {
-      plb = this.parent_.layoutBounds;
-    }
-    context.transform(
-      1, 0, 0, 1,
-      parseInt(lb.minX + lb.width / 2 -
-      plb.minX - plb.width / 2),
-      parseInt(lb.minY + lb.height / 2 -
-      plb.minY - plb.height / 2)
-    );
-
-    // translate
-    context.transform(
-      1, 0, 0, 1,
-      parseInt(this.translateX_ + this.layoutX_),
-      parseInt(this.translateY_ + this.layoutY_)
-    );
-    // rotate
-    context.transform(
-      Math.cos(this.rotate_ * Math.PI / 180),
-      Math.sin(this.rotate_ * Math.PI / 180),
-      -Math.sin(this.rotate_ * Math.PI / 180),
-      Math.cos(this.rotate_ * Math.PI / 180),
-      0, 0
-    );
-    // scale
-    context.transform(
-      this.scaleX_, 0, 0,
-      this.scaleY_, 0, 0
-    );
   }
   get layoutBounds() {
     super.abstractMethod();
@@ -286,6 +208,83 @@ export class Node extends JFObject {
   set translateY(value) {
     this.translateY_ = value;
   }
+  _contains(x, y) {
+    super.abstractMethod();
+  }
+  _draw(context) {
+    super.abstractMethod();
+  }
+  // TODO:
+  _handleEvent(event) {
+    if (!this._contains(event.x, event.y)) {
+      return
+    }
+    if (this.onMouseClicked_ && event.eventType.equals(MouseEvent.MOUSE_CLICKED)) {
+      this.onMouseClicked_.handle(event);
+    }
+    if (this.onMouseDragged_ && event.eventType.equals(MouseEvent.MOUSE_DRAGGED)) {
+      this.onMouseDragged_.handle(event);
+    }
+    if (this.onMouseEntered_ && event.eventType.equals(MouseEvent.MOUSE_ENTERED)) {
+      this.onMouseEntered_.handle(event);
+    }
+    if (this.onMouseExited_ && event.eventType.equals(MouseEvent.MOUSE_EXITED)) {
+      this.onMouseExited_.handle(event);
+    }
+    if (this.onMouseMoved_ && event.eventType.equals(MouseEvent.MOUSE_MOVED)) {
+      this.onMouseMoved_.handle(event);
+    }
+    if (this.onMousePressed_ && event.eventType.equals(MouseEvent.MOUSE_PRESSED)) {
+      this.onMousePressed_.handle(event);
+    }
+    if (this.onMouseReleased_ && event.eventType.equals(MouseEvent.MOUSE_RELEASED)) {
+      this.onMouseReleased_.handle(event);
+    }
+  }
+  _setParent(value) {
+    this.parent_ = value;
+  }
+  // TODO:
+  _transform(context) {
+    if (this.parent_) {
+      this.parent_._transform(context);
+    }
+
+    let lb = this.layoutBounds;
+    let plb;
+    if (!this.parent_) {
+      plb = new Bounds(0, 0, 0, 0);
+    } else {
+      plb = this.parent_.layoutBounds;
+    }
+    context.transform(
+      1, 0, 0, 1,
+      parseInt(lb.minX + lb.width / 2 -
+      plb.minX - plb.width / 2),
+      parseInt(lb.minY + lb.height / 2 -
+      plb.minY - plb.height / 2)
+    );
+
+    // translate
+    context.transform(
+      1, 0, 0, 1,
+      parseInt(this.translateX_ + this.layoutX_),
+      parseInt(this.translateY_ + this.layoutY_)
+    );
+    // rotate
+    context.transform(
+      Math.cos(this.rotate_ * Math.PI / 180),
+      Math.sin(this.rotate_ * Math.PI / 180),
+      -Math.sin(this.rotate_ * Math.PI / 180),
+      Math.cos(this.rotate_ * Math.PI / 180),
+      0, 0
+    );
+    // scale
+    context.transform(
+      this.scaleX_, 0, 0,
+      this.scaleY_, 0, 0
+    );
+  }
 }
 
 
@@ -300,22 +299,6 @@ export class Group extends Parent {
   constructor(...nodes) {
     super();
     this.children_ = nodes;
-  }
-  _contains(x, y) {
-    return this.children_.some(element => {
-      return element._contains(x, y);
-    });
-  }
-  _draw(context) {
-    this.children_.forEach(element => {
-      element._setParent(this);
-      element._draw(context);
-    });
-  }
-  _handleEvent(event) {
-    this.children_.forEach(element => {
-      element._handleEvent(event);
-    });
   }
   get children() {
     return this.children_;
@@ -337,5 +320,21 @@ export class Group extends Parent {
     let maxX = Math.max.apply(null, maxXArray);
     let maxY = Math.max.apply(null, maxYArray);
     return new Bounds(minX, minY, maxX - minX, maxY - minY);
+  }
+  _contains(x, y) {
+    return this.children_.some(element => {
+      return element._contains(x, y);
+    });
+  }
+  _draw(context) {
+    this.children_.forEach(element => {
+      element._setParent(this);
+      element._draw(context);
+    });
+  }
+  _handleEvent(event) {
+    this.children_.forEach(element => {
+      element._handleEvent(event);
+    });
   }
 }

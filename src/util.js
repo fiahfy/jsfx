@@ -2,173 +2,67 @@
 
 
 /**
- * @fileoverview xxx
+ * @fileoverview
  */
 
 
-canvasfx.util = {};
+import {JFObject} from './lang.js';
 
 
-
-/**
- * @param {number} millis
- * @constructor
- * @extends {canvasfx.JFObject}
- */
-canvasfx.util.Duration = function(millis) {
-  canvasfx.JFObject.call(this);
-
-  /**
-   * @private
-   * @type {number}
-   */
-  this.millis_ = millis;
-};
-canvasfx.inherit(canvasfx.util.Duration, canvasfx.JFObject);
-
-
-/**
- * @param {canvasfx.util.Duration} other
- * @return {canvasfx.util.Duration}
- */
-canvasfx.util.Duration.prototype.add = function(other) {
-  return new canvasfx.util.Duration(this.millis_ + other.toMillis());
-};
-
-
-/**
- * @param {canvasfx.util.Duration} obj
- * @return {boolean}
- */
-canvasfx.util.Duration.prototype.equals = function(obj) {
-  return this.millis_ == obj.toMillis();
-};
-
-
-/**
- * @param {canvasfx.util.Duration} other
- * @return {boolean}
- */
-canvasfx.util.Duration.prototype.greaterThan = function(other) {
-  return this.millis_ > other.toMillis();
-};
-
-
-/**
- * @param {canvasfx.util.Duration} other
- * @return {boolean}
- */
-canvasfx.util.Duration.prototype.greaterThanOrEqualTo = function(other) {
-  return this.millis_ >= other.toMillis();
-};
-
-
-/**
- * @param {canvasfx.util.Duration} other
- * @return {boolean}
- */
-canvasfx.util.Duration.prototype.lessThan = function(other) {
-  return this.millis_ < other.toMillis();
-};
-
-
-/**
- * @param {canvasfx.util.Duration} other
- * @return {boolean}
- */
-canvasfx.util.Duration.prototype.lessThanOrEqualTo = function(other) {
-  return this.millis_ <= other.toMillis();
-};
-
-
-/**
- * @return {number}
- */
-canvasfx.util.Duration.prototype.toHours = function() {
-  return this.millis_ / 1000 / 60 / 60;
-};
-
-
-/**
- * @return {number}
- */
-canvasfx.util.Duration.prototype.toMillis = function() {
-  return this.millis_;
-};
-
-
-/**
- * @return {number}
- */
-canvasfx.util.Duration.prototype.toMinutes = function() {
-  return this.millis_ / 1000 / 60;
-};
-
-
-/**
- * @return {number}
- */
-canvasfx.util.Duration.prototype.toSeconds = function() {
-  return this.millis_ / 1000;
-};
-
-
-/**
- * @const
- * @param {number} h
- * @return {canvasfx.util.Duration}
- */
-canvasfx.util.Duration.hours = function(h) {
-  return new canvasfx.util.Duration(h * 60 * 60 * 1000);
-};
-
-
-/**
- * @const
- * @param {number} ms
- * @return {canvasfx.util.Duration}
- */
-canvasfx.util.Duration.millis = function(ms) {
-  return new canvasfx.util.Duration(ms);
-};
-
-
-/**
- * @const
- * @param {number} m
- * @return {canvasfx.util.Duration}
- */
-canvasfx.util.Duration.minutes = function(m) {
-  return new canvasfx.util.Duration(m * 60 * 1000);
-};
-
-
-/**
- * @const
- * @param {number} s
- * @return {canvasfx.util.Duration}
- */
-canvasfx.util.Duration.seconds = function(s) {
-  return new canvasfx.util.Duration(s * 1000);
-};
-
-
-/**
- * @const
- * @type {canvasfx.util.Duration}
- */
-canvasfx.util.Duration.INDEFINITE = canvasfx.util.Duration.millis(Infinity);
-
-
-/**
- * @const
- * @type {canvasfx.util.Duration}
- */
-canvasfx.util.Duration.ONE = canvasfx.util.Duration.millis(1);
-
-
-/**
- * @const
- * @type {canvasfx.util.Duration}
- */
-canvasfx.util.Duration.ZERO = canvasfx.util.Duration.millis(0);
+export class Duration extends JFObject {
+  constructor(millis) {
+    super();
+    this.millis_ = millis;
+  }
+  static get INDEFINITE() {
+    return new Duration(Infinity);
+  }
+  static get ONE() {
+    return new Duration(1);
+  }
+  static get ZERO() {
+    return new Duration(0);
+  }
+  add(other) {
+    return new Duration(this.millis_ + other.toMillis());
+  }
+  equals(obj) {
+    return this.millis_ == obj.toMillis();
+  }
+  greaterThan(other) {
+    return this.millis_ > other.toMillis();
+  }
+  greaterThanOrEqualTo(other) {
+    return this.millis_ >= other.toMillis();
+  }
+  static hours(h) {
+    return new Duration(h * 60 * 60 * 1000);
+  }
+  lessThan(other) {
+    return this.millis_ < other.toMillis();
+  }
+  lessThanOrEqualTo(other) {
+    return this.millis_ <= other.toMillis();
+  }
+  static millis(ms) {
+    return new Duration(ms);
+  }
+  static minutes(m) {
+    return new Duration(m * 60 * 1000);
+  }
+  static seconds(s) {
+    return new Duration(s * 1000);
+  }
+  toHours() {
+    return this.millis_ / 1000 / 60 / 60;
+  }
+  toMillis() {
+    return this.millis_;
+  }
+  toMinutes() {
+    return this.millis_ / 1000 / 60;
+  }
+  toSeconds() {
+    return this.millis_ / 1000;
+  }
+}
