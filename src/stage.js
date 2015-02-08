@@ -123,19 +123,18 @@ export class Stage extends JFWindow {
     });
 
     // animation loop
-    (() => {
-      let timer = new AnimationTimer();
-      timer.handle = (now) => {
-        this._clear();
-        if (!this.showing_) {
+    var self = this;
+    new (class extends AnimationTimer {
+      handle(now) {
+        self._clear();
+        if (!self.showing_) {
           return;
         }
-        this._draw();
-        if (this.dragging_) {
-          callback(MouseEvent.MOUSE_DRAGGED)(this.dragEvent_);
+        self._draw();
+        if (self.dragging_) {
+          callback(MouseEvent.MOUSE_DRAGGED)(self.dragEvent_);
         }
-      };
-      return timer;
+      }
     })().start();
   }
 }

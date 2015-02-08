@@ -139,53 +139,50 @@ export class Animation extends JFObject {
       return;
     }
 
-    this.timer_ = (() => {
-      let beforeTime = Date.now();
-      let delta = 0;
-      let time = Duration.ZERO;
+    var before = Date.now();
+    var delta = 0;
+    var time = Duration.ZERO;
+    var self = this;
+    this.timer_ = new (class extends AnimationTimer {
+      handle(now) {
+        delta = now - before;
+        before = now;
 
-      let t = new AnimationTimer();
-      t.handle = (now) => {
-        delta = now - beforeTime;
-        beforeTime = now;
+        delta *= self.rate_;
 
-        delta *= this.rate_;
-
-        if (this.status_ != Animation.Status.RUNNING) {
+        if (self.status_ != Animation.Status.RUNNING) {
           return;
         }
 
         time = time.add(new Duration(delta));
-        if (time.lessThan(this.delay_)) {
+        if (time.lessThan(self.delay_)) {
           return;
         }
 
-        this.currentTime_ = this.currentTime_.add(new Duration(delta));
-        if (this.currentTime_.greaterThan(this.totalDuration)) {
-          this.currentTime_ = this.totalDuration;
+        self.currentTime_ = self.currentTime_.add(new Duration(delta));
+        if (self.currentTime_.greaterThan(self.totalDuration)) {
+          self.currentTime_ = self.totalDuration;
         }
 
-        let reverse = !!(parseInt(this.currentTime_.toMillis() / this.cycleDuration.toMillis() % 2)
-        && this.autoReverse_);
-        let progress = this.currentTime_.toMillis() % this.cycleDuration_.toMillis() / this.cycleDuration_.toMillis();
+        let reverse = !!(parseInt(self.currentTime_.toMillis() / self.cycleDuration.toMillis() % 2)
+        && self.autoReverse_);
+        let progress = self.currentTime_.toMillis() % self.cycleDuration_.toMillis() / self.cycleDuration_.toMillis();
 
-        if (progress == 0 && !this.autoReverse_) {
+        if (progress == 0 && !self.autoReverse_) {
           progress = 1.0;
         }
         progress = reverse ? (1 - progress) : progress;
 
-        this._update(progress);
+        self._update(progress);
 
-        if (this.currentTime_.greaterThanOrEqualTo(this.totalDuration)) {
-          let event = new ActionEvent();
-          if (this.onFinished_) {
-            this.onFinished_.handle(event);
+        if (self.currentTime_.greaterThanOrEqualTo(self.totalDuration)) {
+          if (self.onFinished_) {
+            self.onFinished_.handle(new ActionEvent());
           }
-          t.stop();
           this.stop();
+          self.stop();
         }
-      };
-      return t;
+      }
     })();
     this.timer_.start();
   }
