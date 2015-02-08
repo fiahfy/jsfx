@@ -6,19 +6,18 @@
  */
 
 
+import {KeyFrame, Timeline, FadeTransition} from '../src/animation.js';
 import {Application} from '../src/application.js';
 import {EventHandler} from '../src/event.js';
 import {Scene, Group} from '../src/scene.js';
 import {Stage} from '../src/stage.js';
+import {Duration} from '../src/util.js';
 import {Color} from '../src/scene/paint.js';
 import {StrokeType, Circle, Rectangle, Line} from '../src/scene/shape.js';
 
 
 class TestApp extends Application {
   start(primaryStage) {
-    console.log('start');
-    //document.getElementById('app').innerHTML = 'hoge';
-
     this.root = new Group();
     this.scene = new Scene(this.root);
     primaryStage.scene = this.scene;
@@ -71,10 +70,12 @@ class TestApp extends Application {
       //return e;
     })();
 
+    this.testAnimation(circle);
+
     primaryStage.show();
     setTimeout(() => {
-      primaryStage.hide();
-    }, 2000);
+      //primaryStage.hide();
+    }, 10000);
   }
   getGrid() {
     let g = new Group();
@@ -93,6 +94,70 @@ class TestApp extends Application {
     }
 
     return g;
+  }
+  testAnimation(node) {
+    if (true) {
+      var t2 = new Timeline(
+        new KeyFrame(
+          new Duration(2000),
+          (function() {
+            var e = new EventHandler();
+            e.handle = function(event) {
+              console.log(Date.now(), 'fin222');
+            };
+            return e;
+          })()
+        )
+      );
+
+      var t = new Timeline(
+        new KeyFrame(
+          new Duration(5000),
+          (function() {
+            var e = new EventHandler();
+            e.handle = function(event) {
+              console.log(Date.now(), 'fin');
+              t2.play();
+            };
+            return e;
+          })()
+        ),
+        new KeyFrame(
+          new Duration(6000),
+          (function() {
+            var e = new EventHandler();
+            e.handle = function(event) {
+              console.log(Date.now(), 'st');
+              t2.pause();
+            };
+            return e;
+          })()
+        ),
+        new KeyFrame(
+          new Duration(7000),
+          (function() {
+            var e = new EventHandler();
+            e.handle = function(event) {
+              console.log(Date.now(), 'pl');
+              t2.play();
+            };
+            return e;
+          })()
+        )
+      );
+      t.play();
+    }
+    if (false) {
+      var ft = new FadeTransition();
+      ft.duration = Duration.seconds(3);
+      ft.node = node;
+      ft.cycleCount = 100;
+      ft.autoReverse = true;
+      //tt.setToX(100);
+      //tt.setToY(50);
+      ft.toValue = 0.1;
+      ft.play();
+    }
   }
 }
 
