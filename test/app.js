@@ -95,7 +95,7 @@ class TestApp extends Application {
     return g;
   }
   testAnimation(node, n2, n3) {
-    if (0) {
+    if (1) {
       var t2 = new Timeline(
         new KeyFrame(
           new Duration(2000),
@@ -149,7 +149,7 @@ class TestApp extends Application {
     if (0) {
       var ft = new FadeTransition();
       ft.duration = Duration.seconds(3);
-      ft.node = n3;
+      ft.node = n2;
       ft.cycleCount = 100;
       ft.autoReverse = true;
       //tt.setToX(100);
@@ -160,7 +160,7 @@ class TestApp extends Application {
     if (0) {
       var ft = new FillTransition();
       ft.duration = Duration.seconds(3);
-      ft.node = node;
+      ft.shape = node;
       ft.cycleCount = 100;
       ft.autoReverse = true;
       //tt.setToX(100);
@@ -171,7 +171,7 @@ class TestApp extends Application {
     if (0) {
       var ft = new StrokeTransition();
       ft.duration = Duration.seconds(3);
-      ft.node = node;
+      ft.shape = node;
       ft.cycleCount = 100;
       ft.autoReverse = true;
       //tt.setToX(100);
@@ -202,7 +202,7 @@ class TestApp extends Application {
       ft.toY = 1.5;
       ft.play();
     }
-    if (1) {
+    if (0) {
       var ft = new TranslateTransition();
       ft.duration = Duration.seconds(3);
       ft.node = n3;

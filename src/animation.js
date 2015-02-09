@@ -69,7 +69,7 @@ export class AnimationTimer extends JFObject {
 
 
 export class Animation extends JFObject {
-  constructor(targetFramerate) {
+  constructor(targetFramerate = null) {
     super();
     this.autoReverse_ = false;
     this.cycleCount_ = 1.0;
@@ -136,7 +136,7 @@ export class Animation extends JFObject {
     }
     this.status_ = Animation.Status.RUNNING;
 
-    if (this.timer_) {
+    if (this.timer_ != null) {
       return;
     }
 
@@ -177,7 +177,7 @@ export class Animation extends JFObject {
         self._update(progress);
 
         if (self.currentTime_.greaterThanOrEqualTo(self.totalDuration)) {
-          if (self.onFinished_) {
+          if (self.onFinished_ != null) {
             self.onFinished_.handle(new ActionEvent());
           }
           this.stop();
@@ -201,7 +201,7 @@ export class Animation extends JFObject {
       return;
     }
     this.status_ = Animation.Status.STOPPED;
-    if (this.timer_) {
+    if (this.timer_ != null) {
       this.timer_.stop();
       this.timer_ = null;
     }
@@ -219,7 +219,11 @@ export class Animation extends JFObject {
 
 export class Timeline extends Animation {
   constructor(...keyFrames) {
-    super();
+    var targetFrame = null;
+    if (keyFrames.length && !isNaN(keyFrames[0])) {
+      targetFrame = keyFrames.shift()
+    }
+    super(targetFrame);
     this.animations_ = [];
     this.keyFrames_ = keyFrames;
   }
@@ -257,8 +261,9 @@ export class Timeline extends Animation {
 
 
 export class Transition extends Animation {
-  constructor() {
-    super();
+  constructor(targetFrame = null) {
+    super(targetFrame);
+
   }
   get node() {
     return this.node_;
@@ -275,11 +280,11 @@ export class FadeTransition extends Transition {
     super();
     this.byValue_ = 0.0;
     this.cycleDuration_ = duration;
-    this.endValue_ = NaN;
-    this.fromValue_ = NaN;
+    this.endValue_ = null;
+    this.fromValue_ = null;
     this.node_ = node;
-    this.startValue_ = NaN;
-    this.toValue_ = NaN;
+    this.startValue_ = null;
+    this.toValue_ = null;
   }
   get byValue() {
     return this.byValue_;
@@ -312,23 +317,23 @@ export class FadeTransition extends Transition {
     this.toValue_ = value;
   }
   play() {
-    if (!this.node_) {
+    if (this.node_ == null) {
       return;
     }
 
     this.startValue_ = this.fromValue_;
-    if (isNaN(this.startValue_)) {
+    if (this.startValue_ == null) {
       this.startValue_ = this.node_.opacity;
     }
     this.endValue_ = this.toValue_;
-    if (isNaN(this.endValue_)) {
+    if (this.endValue_ == null) {
       this.endValue_ = this.startValue_ + this.byValue_;
     }
 
     super.play();
   }
   _update(progress) {
-    if (!this.node_) {
+    if (this.node_ == null) {
       return;
     }
 
@@ -372,23 +377,23 @@ export class FillTransition extends Transition {
     this.toValue_ = value;
   }
   play() {
-    if (!this.node_) {
+    if (this.shape_ == null) {
       return;
     }
 
     this.startValue_ = this.fromValue_;
-    if (!this.startValue_) {
-      this.startValue_ = this.node_.fill;
+    if (this.startValue_ == null) {
+      this.startValue_ = this.shape_.fill;
     }
     this.endValue_ = this.toValue_;
-    if (!this.endValue_) {
+    if (this.endValue_ == null) {
       this.endValue_ = this.startValue_;
     }
 
     super.play();
   }
   _update(progress) {
-    if (!this.node_) {
+    if (this.shape_ == null) {
       return;
     }
 
@@ -397,7 +402,7 @@ export class FillTransition extends Transition {
     let blue = this.startValue_.blue - this.startValue_.blue * progress + this.endValue_.blue * progress;
     let opacity = this.startValue_.opacity - this.startValue_.opacity * progress + this.endValue_.opacity * progress;
 
-    this.node_.fill = new Color(red, green, blue, opacity);
+    this.shape_.fill = new Color(red, green, blue, opacity);
   }
 }
 
@@ -407,11 +412,11 @@ export class RotateTransition extends Transition {
     super();
     this.byAngle_ = 0.0;
     this.cycleDuration_ = duration;
-    this.endAngle_ = NaN;
-    this.fromAngle_ = NaN;
+    this.endAngle_ = null;
+    this.fromAngle_ = null;
     this.node_ = node;
-    this.startAngle_ = NaN;
-    this.toAngle_ = NaN;
+    this.startAngle_ = null;
+    this.toAngle_ = null;
   }
   get byAngle() {
     return this.byAngle_;
@@ -444,23 +449,23 @@ export class RotateTransition extends Transition {
     this.toAngle_ = value;
   }
   play() {
-    if (!this.node_) {
+    if (this.node_ == null) {
       return;
     }
 
     this.startAngle_ = this.fromAngle_;
-    if (isNaN(this.startAngle_)) {
+    if (this.startAngle_ == null) {
       this.startAngle_ = this.node_.rotate;
     }
     this.endAngle_ = this.toAngle_;
-    if (isNaN(this.endAngle_)) {
+    if (this.endAngle_ == null) {
       this.endAngle_ = this.startAngle_ + this.byAngle_;
     }
 
     super.play();
   }
   _update(progress) {
-    if (!this.node_) {
+    if (this.node_ == null) {
       return;
     }
 
@@ -475,15 +480,15 @@ export class ScaleTransition extends Transition {
     this.byX_ = 0.0;
     this.byY_ = 0.0;
     this.cycleDuration_ = duration;
-    this.endX_ = NaN;
-    this.endY_ = NaN;
-    this.fromX_ = NaN;
-    this.fromY_ = NaN;
+    this.endX_ = null;
+    this.endY_ = null;
+    this.fromX_ = null;
+    this.fromY_ = null;
     this.node_ = node;
-    this.startX_ = NaN;
-    this.startY_ = NaN;
-    this.toX_ = NaN;
-    this.toY_ = NaN;
+    this.startX_ = null;
+    this.startY_ = null;
+    this.toX_ = null;
+    this.toY_ = null;
   }
   get byX() {
     return this.byX_;
@@ -558,32 +563,32 @@ export class ScaleTransition extends Transition {
     this.toY_ = value;
   }
   play() {
-    if (!this.node_) {
+    if (this.node_ == null) {
       return;
     }
 
     this.startX_ = this.fromX_;
-    if (isNaN(this.startX_)) {
+    if (this.startX_ == null) {
       this.startX_ = this.node_.scaleX;
     }
     this.endX_ = this.toX_;
-    if (isNaN(this.endX_)) {
+    if (this.endX_ == null) {
       this.endX_ = this.startX_ + this.byX_;
     }
 
     this.startY_ = this.fromY_;
-    if (isNaN(this.startY_)) {
+    if (this.startY_ == null) {
       this.startY_ = this.node_.scaleY;
     }
     this.endY_ = this.toY_;
-    if (isNaN(this.endY_)) {
+    if (this.endY_ == null) {
       this.endY_ = this.startY_ + this.byY_;
     }
 
     super.play();
   }
   _update(progress) {
-    if (!this.node_) {
+    if (this.node_ == null) {
       return;
     }
 
@@ -628,23 +633,23 @@ export class StrokeTransition extends Transition {
     this.toValue_ = value;
   }
   play() {
-    if (!this.node_) {
+    if (this.shape_ == null) {
       return;
     }
 
     this.startValue_ = this.fromValue_;
-    if (!this.startValue_) {
-      this.startValue_ = this.node_.stroke;
+    if (this.startValue_ == null) {
+      this.startValue_ = this.shape_.stroke;
     }
     this.endValue_ = this.toValue_;
-    if (!this.endValue_) {
+    if (this.endValue_ == null) {
       this.endValue_ = this.startValue_;
     }
 
     super.play();
   }
   _update(progress) {
-    if (!this.node_) {
+    if (this.shape_ == null) {
       return;
     }
 
@@ -653,7 +658,7 @@ export class StrokeTransition extends Transition {
     let blue = this.startValue_.blue - this.startValue_.blue * progress + this.endValue_.blue * progress;
     let opacity = this.startValue_.opacity - this.startValue_.opacity * progress + this.endValue_.opacity * progress;
 
-    this.node_.stroke = new Color(red, green, blue, opacity);
+    this.shape_.stroke = new Color(red, green, blue, opacity);
   }
 }
 
@@ -664,15 +669,15 @@ export class TranslateTransition extends Transition {
     this.byX_ = 0.0;
     this.byY_ = 0.0;
     this.cycleDuration_ = duration;
-    this.endX_ = NaN;
-    this.endY_ = NaN;
-    this.fromX_ = NaN;
-    this.fromY_ = NaN;
+    this.endX_ = null;
+    this.endY_ = null;
+    this.fromX_ = null;
+    this.fromY_ = null;
     this.node_ = node;
-    this.startX_ = NaN;
-    this.startY_ = NaN;
-    this.toX_ = NaN;
-    this.toY_ = NaN;
+    this.startX_ = null;
+    this.startY_ = null;
+    this.toX_ = null;
+    this.toY_ = null;
   }
   get byX() {
     return this.byX_;
@@ -747,32 +752,32 @@ export class TranslateTransition extends Transition {
     this.toY_ = value;
   }
   play() {
-    if (!this.node_) {
+    if (this.node_ == null) {
       return;
     }
 
     this.startX_ = this.fromX_;
-    if (isNaN(this.startX_)) {
+    if (this.startX_ == null) {
       this.startX_ = this.node_.translateX;
     }
     this.endX_ = this.toX_;
-    if (isNaN(this.endX_)) {
+    if (this.endX_ == null) {
       this.endX_ = this.startX_ + this.byX_;
     }
 
     this.startY_ = this.fromY_;
-    if (isNaN(this.startY_)) {
+    if (this.startY_ == null) {
       this.startY_ = this.node_.translateY;
     }
     this.endY_ = this.toY_;
-    if (isNaN(this.endY_)) {
+    if (this.endY_ == null) {
       this.endY_ = this.startY_ + this.byY_;
     }
 
     super.play();
   }
   _update(progress) {
-    if (!this.node_) {
+    if (this.node_ == null) {
       return;
     }
 
