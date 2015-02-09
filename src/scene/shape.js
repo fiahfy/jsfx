@@ -28,13 +28,13 @@ export class Shape extends Node {
     this.strokeWidth = 1.0;
   }
   get currentFill() {
-    if (!this.fill) {
+    if (this.fill == null) {
       return null;
     }
     return Color.color(this.fill.red, this.fill.green, this.fill.blue, this.fill.opacity * this.opacity);
   }
   get currentStroke() {
-    if (!this.stroke) {
+    if (this.stroke == null) {
       return null;
     }
     return Color.color(this.stroke.red, this.stroke.green, this.stroke.blue, this.stroke.opacity * this.opacity);
@@ -71,7 +71,7 @@ export class Circle extends Shape {
     return point.distance(x, y) <= this.radius;
   }
   _draw(context) {
-    if (this.currentFill) {
+    if (this.currentFill != null) {
       context.fillStyle = this.currentFill._colorString;
       context.globalAlpha = this.currentFill.opacity;
       context.setTransform(1, 0, 0, 1, 0, 0);
@@ -83,7 +83,7 @@ export class Circle extends Shape {
       );
       context.fill();
     }
-    if (this.currentStroke) {
+    if (this.currentStroke != null) {
       context.strokeStyle = this.currentStroke._colorString;
       context.globalAlpha = this.currentStroke.opacity;
       context.lineWidth = this.strokeWidth;
@@ -144,7 +144,7 @@ export class Line extends Shape {
     return false;
   }
   _draw(context) {
-    if (this.currentStroke) {
+    if (this.currentStroke != null) {
       context.strokeStyle = this.currentStroke._colorString;
       context.globalAlpha = this.currentStroke.opacity;
       context.lineWidth = this.strokeWidth;
@@ -242,7 +242,7 @@ export class Rectangle extends Shape {
     return false;
   }
   _draw(context) {
-    if (this.currentFill) {
+    if (this.currentFill != null) {
       context.fillStyle = this.currentFill._colorString;
       context.globalAlpha = this.currentFill.opacity;
       context.setTransform(1, 0, 0, 1, 0, 0);
@@ -295,7 +295,7 @@ export class Rectangle extends Shape {
       context.fill();
     }
 
-    if (this.currentStroke) {
+    if (this.currentStroke != null) {
       context.strokeStyle = this.currentStroke._colorString;
       context.globalAlpha = this.currentStroke.opacity;
       context.lineWidth = this.strokeWidth;

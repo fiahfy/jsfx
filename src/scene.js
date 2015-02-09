@@ -219,25 +219,25 @@ export class Node extends JFObject {
     if (!this._contains(event.x, event.y)) {
       return
     }
-    if (this.onMouseClicked_ && event.eventType.equals(MouseEvent.MOUSE_CLICKED)) {
+    if (this.onMouseClicked_ != null && event.eventType.equals(MouseEvent.MOUSE_CLICKED)) {
       this.onMouseClicked_.handle(event);
     }
-    if (this.onMouseDragged_ && event.eventType.equals(MouseEvent.MOUSE_DRAGGED)) {
+    if (this.onMouseDragged_ != null && event.eventType.equals(MouseEvent.MOUSE_DRAGGED)) {
       this.onMouseDragged_.handle(event);
     }
-    if (this.onMouseEntered_ && event.eventType.equals(MouseEvent.MOUSE_ENTERED)) {
+    if (this.onMouseEntered_ != null && event.eventType.equals(MouseEvent.MOUSE_ENTERED)) {
       this.onMouseEntered_.handle(event);
     }
-    if (this.onMouseExited_ && event.eventType.equals(MouseEvent.MOUSE_EXITED)) {
+    if (this.onMouseExited_ != null && event.eventType.equals(MouseEvent.MOUSE_EXITED)) {
       this.onMouseExited_.handle(event);
     }
-    if (this.onMouseMoved_ && event.eventType.equals(MouseEvent.MOUSE_MOVED)) {
+    if (this.onMouseMoved_ != null && event.eventType.equals(MouseEvent.MOUSE_MOVED)) {
       this.onMouseMoved_.handle(event);
     }
-    if (this.onMousePressed_ && event.eventType.equals(MouseEvent.MOUSE_PRESSED)) {
+    if (this.onMousePressed_ != null && event.eventType.equals(MouseEvent.MOUSE_PRESSED)) {
       this.onMousePressed_.handle(event);
     }
-    if (this.onMouseReleased_ && event.eventType.equals(MouseEvent.MOUSE_RELEASED)) {
+    if (this.onMouseReleased_ != null && event.eventType.equals(MouseEvent.MOUSE_RELEASED)) {
       this.onMouseReleased_.handle(event);
     }
   }
@@ -246,13 +246,13 @@ export class Node extends JFObject {
   }
   // TODO:
   _transform(context) {
-    if (this.parent_) {
+    if (this.parent_ != null) {
       this.parent_._transform(context);
     }
 
     let lb = this.layoutBounds;
     let plb;
-    if (!this.parent_) {
+    if (this.parent_ == null) {
       plb = new Bounds(0, 0, 0, 0);
     } else {
       plb = this.parent_.layoutBounds;
