@@ -6,7 +6,7 @@
  */
 
 
-import {KeyFrame, Timeline, FadeTransition} from '../src/animation.js';
+import {KeyFrame, Timeline, FadeTransition, FillTransition, RotateTransition, ScaleTransition, StrokeTransition, TranslateTransition} from '../src/animation.js';
 import {Application} from '../src/application.js';
 import {EventHandler} from '../src/event.js';
 import {Scene, Group} from '../src/scene.js';
@@ -69,7 +69,7 @@ class TestApp extends Application {
       //return e;
     //})();
 
-    this.testAnimation(circle);
+    this.testAnimation(circle, rectangle, group);
 
     primaryStage.show();
     setTimeout(() => {
@@ -94,8 +94,8 @@ class TestApp extends Application {
 
     return g;
   }
-  testAnimation(node) {
-    if (true) {
+  testAnimation(node, n2, n3) {
+    if (0) {
       var t2 = new Timeline(
         new KeyFrame(
           new Duration(2000),
@@ -146,15 +146,72 @@ class TestApp extends Application {
       );
       t.play();
     }
-    if (false) {
+    if (0) {
       var ft = new FadeTransition();
+      ft.duration = Duration.seconds(3);
+      ft.node = n3;
+      ft.cycleCount = 100;
+      ft.autoReverse = true;
+      //tt.setToX(100);
+      //tt.setToY(50);
+      ft.toValue = 0.1;
+      ft.play();
+    }
+    if (0) {
+      var ft = new FillTransition();
       ft.duration = Duration.seconds(3);
       ft.node = node;
       ft.cycleCount = 100;
       ft.autoReverse = true;
       //tt.setToX(100);
       //tt.setToY(50);
-      ft.toValue = 0.1;
+      ft.toValue = new Color(0, 1, 0);
+      ft.play();
+    }
+    if (0) {
+      var ft = new StrokeTransition();
+      ft.duration = Duration.seconds(3);
+      ft.node = node;
+      ft.cycleCount = 100;
+      ft.autoReverse = true;
+      //tt.setToX(100);
+      //tt.setToY(50);
+      ft.toValue = new Color(0, 1, 0);
+      ft.play();
+    }
+    if (0) {
+      var ft = new RotateTransition();
+      ft.duration = Duration.seconds(3);
+      ft.node = n3;
+      ft.cycleCount = 100;
+      ft.autoReverse = false;
+      //tt.setToX(100);
+      //tt.setToY(50);
+      ft.toAngle = 360;
+      ft.play();
+    }
+    if (0) {
+      var ft = new ScaleTransition();
+      ft.duration = Duration.seconds(3);
+      ft.node = n3;
+      ft.cycleCount = 100;
+      ft.autoReverse = true;
+      //tt.setToX(100);
+      //tt.setToY(50);
+      ft.toX = 2;
+      ft.toY = 1.5;
+      ft.play();
+    }
+    if (1) {
+      var ft = new TranslateTransition();
+      ft.duration = Duration.seconds(3);
+      ft.node = n3;
+      ft.cycleCount = 100;
+      ft.autoReverse = true;
+      //tt.setToX(100);
+      //tt.setToY(50);
+      ft.toX = 100;
+      ft.toY = 200;
       ft.play();
     }
   }
