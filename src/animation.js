@@ -263,13 +263,20 @@ export class Timeline extends Animation {
 export class Transition extends Animation {
   constructor(targetFrame = null) {
     super(targetFrame);
-
+    this.interpolator_ = null;
   }
-  get node() {
-    return this.node_;
+  interpolate(frac) {
+    super.abstractMethod();
   }
-  set node(value) {
-    this.node_ = value;
+  get interpolator() {
+    return this.interpolator_;
+  }
+  set interpolator(value) {
+    this.interpolator_ = value;
+  }
+  _update(progress) {
+    // TODO: interpolate
+    this.interpolate(progress)
   }
 }
 
@@ -304,6 +311,13 @@ export class FadeTransition extends Transition {
   set fromValue(value) {
     this.fromValue_ = value;
   }
+  interpolate(frac) {
+    if (this.node_ == null) {
+      return;
+    }
+
+    this.node_.opacity = this.startValue_ - this.startValue_ * frac + this.endValue_ * frac;
+  }
   get node() {
     return this.node_;
   }
@@ -332,13 +346,6 @@ export class FadeTransition extends Transition {
 
     super.play();
   }
-  _update(progress) {
-    if (this.node_ == null) {
-      return;
-    }
-
-    this.node_.opacity = this.startValue_ - this.startValue_ * progress + this.endValue_ * progress;
-  }
 }
 
 
@@ -363,6 +370,18 @@ export class FillTransition extends Transition {
   }
   set fromValue(value) {
     this.fromValue_ = value;
+  }
+  interpolate(frac) {
+    if (this.shape_ == null) {
+      return;
+    }
+
+    let red = this.startValue_.red - this.startValue_.red * frac + this.endValue_.red * frac;
+    let green = this.startValue_.green - this.startValue_.green * frac + this.endValue_.green * frac;
+    let blue = this.startValue_.blue - this.startValue_.blue * frac + this.endValue_.blue * frac;
+    let opacity = this.startValue_.opacity - this.startValue_.opacity * frac + this.endValue_.opacity * frac;
+
+    this.shape_.fill = new Color(red, green, blue, opacity);
   }
   get shape() {
     return this.shape_;
@@ -391,18 +410,6 @@ export class FillTransition extends Transition {
     }
 
     super.play();
-  }
-  _update(progress) {
-    if (this.shape_ == null) {
-      return;
-    }
-
-    let red = this.startValue_.red - this.startValue_.red * progress + this.endValue_.red * progress;
-    let green = this.startValue_.green - this.startValue_.green * progress + this.endValue_.green * progress;
-    let blue = this.startValue_.blue - this.startValue_.blue * progress + this.endValue_.blue * progress;
-    let opacity = this.startValue_.opacity - this.startValue_.opacity * progress + this.endValue_.opacity * progress;
-
-    this.shape_.fill = new Color(red, green, blue, opacity);
   }
 }
 
@@ -436,6 +443,13 @@ export class RotateTransition extends Transition {
   set fromAngle(value) {
     this.fromAngle_ = value;
   }
+  interpolate(frac) {
+    if (this.node_ == null) {
+      return;
+    }
+
+    this.node_.rotate = this.startAngle_ - this.startAngle_ * frac + this.endAngle_ * frac;
+  }
   get node() {
     return this.node_;
   }
@@ -463,13 +477,6 @@ export class RotateTransition extends Transition {
     }
 
     super.play();
-  }
-  _update(progress) {
-    if (this.node_ == null) {
-      return;
-    }
-
-    this.node_.rotate = this.startAngle_ - this.startAngle_ * progress + this.endAngle_ * progress;
   }
 }
 
@@ -532,6 +539,14 @@ export class ScaleTransition extends Transition {
   set fromY(value) {
     this.fromY_ = value;
   }
+  interpolate(frac) {
+    if (this.node_ == null) {
+      return;
+    }
+
+    this.node_.scaleX = this.startX_ - this.startX_ * frac + this.endX_ * frac;
+    this.node_.scaleY = this.startY_ - this.startY_ * frac + this.endY_ * frac;
+  }
   get node() {
     return this.node_;
   }
@@ -587,14 +602,6 @@ export class ScaleTransition extends Transition {
 
     super.play();
   }
-  _update(progress) {
-    if (this.node_ == null) {
-      return;
-    }
-
-    this.node_.scaleX = this.startX_ - this.startX_ * progress + this.endX_ * progress;
-    this.node_.scaleY = this.startY_ - this.startY_ * progress + this.endY_ * progress;
-  }
 }
 
 
@@ -619,6 +626,18 @@ export class StrokeTransition extends Transition {
   }
   set fromValue(value) {
     this.fromValue_ = value;
+  }
+  interpolate(frac) {
+    if (this.shape_ == null) {
+      return;
+    }
+
+    let red = this.startValue_.red - this.startValue_.red * frac + this.endValue_.red * frac;
+    let green = this.startValue_.green - this.startValue_.green * frac + this.endValue_.green * frac;
+    let blue = this.startValue_.blue - this.startValue_.blue * frac + this.endValue_.blue * frac;
+    let opacity = this.startValue_.opacity - this.startValue_.opacity * frac + this.endValue_.opacity * frac;
+
+    this.shape_.stroke = new Color(red, green, blue, opacity);
   }
   get shape() {
     return this.shape_;
@@ -647,18 +666,6 @@ export class StrokeTransition extends Transition {
     }
 
     super.play();
-  }
-  _update(progress) {
-    if (this.shape_ == null) {
-      return;
-    }
-
-    let red = this.startValue_.red - this.startValue_.red * progress + this.endValue_.red * progress;
-    let green = this.startValue_.green - this.startValue_.green * progress + this.endValue_.green * progress;
-    let blue = this.startValue_.blue - this.startValue_.blue * progress + this.endValue_.blue * progress;
-    let opacity = this.startValue_.opacity - this.startValue_.opacity * progress + this.endValue_.opacity * progress;
-
-    this.shape_.stroke = new Color(red, green, blue, opacity);
   }
 }
 
@@ -721,6 +728,14 @@ export class TranslateTransition extends Transition {
   set fromY(value) {
     this.fromY_ = value;
   }
+  interpolate(frac) {
+    if (this.node_ == null) {
+      return;
+    }
+
+    this.node_.translateX = this.startX_ - this.startX_ * frac + this.endX_ * frac;
+    this.node_.translateY = this.startY_ - this.startY_ * frac + this.endY_ * frac;
+  }
   get node() {
     return this.node_;
   }
@@ -775,13 +790,5 @@ export class TranslateTransition extends Transition {
     }
 
     super.play();
-  }
-  _update(progress) {
-    if (this.node_ == null) {
-      return;
-    }
-
-    this.node_.translateX = this.startX_ - this.startX_ * progress + this.endX_ * progress;
-    this.node_.translateY = this.startY_ - this.startY_ * progress + this.endY_ * progress;
   }
 }
