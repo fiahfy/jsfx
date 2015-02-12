@@ -214,7 +214,6 @@ export class Node extends JFObject {
   _draw(context) {
     super.abstractMethod();
   }
-  // TODO:
   _handleEvent(event) {
     if (!this._contains(event.x, event.y)) {
       return
@@ -244,7 +243,6 @@ export class Node extends JFObject {
   _setParent(value) {
     this.parent_ = value;
   }
-  // TODO:
   _transform(context) {
     if (this.parent_ != null) {
       this.parent_._transform(context);
