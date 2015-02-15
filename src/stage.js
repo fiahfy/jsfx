@@ -60,6 +60,7 @@ export class JFWindow extends JFObject {
     this.height_ = this.element_.offsetHeight;
     this.width_ = this.element_.offsetWidth;
     this.element_.appendChild(this.canvas_);
+    this.canvas_.oncontextmenu = () => false;
   }
 }
 
@@ -80,6 +81,34 @@ export class Stage extends JFWindow {
     this.scene.root._draw(this.context_);
   }
   _update() {
+    let callback = (eventType) => {
+      return (e) => {
+        let rect = e.target.getBoundingClientRect();
+        let x = e.clientX - rect.left;
+        let y = e.clientY - rect.top;
+        //console.log(eventType, x, y);
+        //console.log(window.event);
+        //let event = new MouseEvent(eventType, x, y);
+        //this.scene._handleEvent(event);
+        this.scene.root._handle();
+      };
+    };
+
+    let eventMap = [
+      'click',
+      'mouseover',
+      'mouseout',
+      'mousemove',
+      'mousedown',
+      'mouseup'
+    ];
+
+    eventMap.forEach((element) => {
+      this.canvas_.addEventListener(element, callback(element));
+    });
+
+
+    /*
     let callback = (eventType) => {
       return (e) => {
         let rect = e.target.getBoundingClientRect();
@@ -120,6 +149,7 @@ export class Stage extends JFWindow {
 
       this.canvas_.addEventListener('mouseup', mouseup);
     });
+  */
 
     // animation loop
     var self = this;

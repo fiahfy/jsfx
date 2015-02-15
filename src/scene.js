@@ -290,6 +290,49 @@ export class Node extends JFObject {
       this.scaleY_, 0, 0
     );
   }
+  _handle() {
+    let e = window.event;
+
+    switch (e.type) {
+    case 'mousedown':
+      if (this._contains(e.offsetX, e.offsetY)) {
+        if (this.onMousePressed_ != null) {
+          this.onMousePressed_.handle(new MouseEvent(MouseEvent.MOUSE_PRESSED, e.offsetX, e.offsetY));
+        }
+        this.dragging_ = true;
+      }
+      break;
+
+    case 'mouseup':
+      if (this.dragging_) {
+        if (this.onMouseReleased_ != null) {
+          this.onMouseReleased_.handle(new MouseEvent(MouseEvent.MOUSE_RELEASED, e.offsetX, e.offsetY));
+        }
+        if (this._contains(e.offsetX, e.offsetY)) {
+          if (this.onMouseClicked_ != null) {
+            this.onMouseClicked_.handle(new MouseEvent(MouseEvent.MOUSE_CLICKED, e.offsetX, e.offsetY));
+          }
+        }
+        this.dragging_ = false;
+      }
+      break;
+
+    case 'mousemove':
+      if (this.dragging_) {
+        if (this.onMouseDragged_ != null) {
+          this.onMouseDragged_.handle(new MouseEvent(MouseEvent.MOUSE_DRAGGED, e.offsetX, e.offsetY));
+        }
+      }
+      if (e.which == 0) {
+        if (this._contains(e.offsetX, e.offsetY)) {
+          if (this.onMouseMoved_ != null) {
+            this.onMouseMoved_.handle(new MouseEvent(MouseEvent.MOUSE_MOVED, e.offsetX, e.offsetY));
+          }
+        }
+      }
+      break;
+    }
+  }
 }
 
 
@@ -341,5 +384,11 @@ export class Group extends Parent {
     this.children_.forEach(element => {
       element._handleEvent(event);
     });
+  }
+  _handle() {
+    this.children_.forEach(element => {
+      element._handle();
+    });
+    super._handle();
   }
 }

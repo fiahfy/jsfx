@@ -56,9 +56,33 @@ class TestApp extends Application {
       };
       return e;
     })();
-    circle.onMouseDragged = new (class extends EventHandler {
+    group.onMouseClicked = new (class extends EventHandler {
       handle(event) {
-        console.log(event);
+        console.log('click');
+      }
+    })();
+    group.onMouseMoved = new (class extends EventHandler {
+      handle(event) {
+        console.log('move');
+        //console.log(window.event);
+      }
+    })();
+    group.onMouseDragged = new (class extends EventHandler {
+      handle(event) {
+        console.log('drag');
+        //console.log(window.event);
+      }
+    })();
+    group.onMousePressed = new (class extends EventHandler {
+      handle(event) {
+        console.log('press');
+        //console.log(window.event);
+      }
+    })();
+    group.onMouseReleased = new (class extends EventHandler {
+      handle(event) {
+        console.log('release');
+        //console.log(window.event);
       }
     })();
       //return new Hoge();
@@ -95,7 +119,7 @@ class TestApp extends Application {
     return g;
   }
   testAnimation(node, n2, n3) {
-    if (1) {
+    if (0) {
       var t2 = new Timeline(
         new KeyFrame(
           new Duration(2000),
@@ -149,7 +173,7 @@ class TestApp extends Application {
     if (0) {
       var ft = new FadeTransition();
       ft.duration = Duration.seconds(3);
-      ft.node = n2;
+      ft.node = n3;
       ft.cycleCount = 100;
       ft.autoReverse = true;
       //tt.setToX(100);
