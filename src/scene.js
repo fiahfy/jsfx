@@ -211,6 +211,13 @@ export class Node extends JFObject {
   _contains(x, y) {
     super.abstractMethod();
   }
+  get _currentOpacity() {
+    let opacity = 1.0;
+    if (this.parent_ != null) {
+      opacity = this.parent_._currentOpacity;
+    }
+    return this.opacity_ * opacity;
+  }
   _draw(context) {
     super.abstractMethod();
   }

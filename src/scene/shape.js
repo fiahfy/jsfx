@@ -55,13 +55,13 @@ export class Shape extends Node {
     if (this.fill_ == null) {
       return null;
     }
-    return Color.color(this.fill_.red, this.fill_.green, this.fill_.blue, this.fill_.opacity * this.opacity);
+    return Color.color(this.fill_.red, this.fill_.green, this.fill_.blue, this.fill_.opacity * this._currentOpacity);
   }
   get _currentStroke() {
     if (this.stroke_ == null) {
       return null;
     }
-    return Color.color(this.stroke_.red, this.stroke_.green, this.stroke_.blue, this.stroke_.opacity * this.opacity);
+    return Color.color(this.stroke_.red, this.stroke_.green, this.stroke_.blue, this.stroke_.opacity * this._currentOpacity);
   }
 }
 

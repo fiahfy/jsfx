@@ -16,7 +16,6 @@ export class JFWindow extends JFObject {
     super();
     this.canvas_ = window.document.createElement('canvas');
     this.context_ = this.canvas_.getContext('2d');
-    this.dragEvent_ = null;
     this.dragging_ = false;
     this.element_ = null;
     this.height_ = 0;
@@ -106,15 +105,15 @@ export class Stage extends JFWindow {
 
     // attach drag event listener
     this.canvas_.addEventListener('mousemove', (e) => {
-      this.dragEvent_ = e;
+      if (this.dragging_) {
+        callback(MouseEvent.MOUSE_DRAGGED)(e);
+      }
     });
 
     this.canvas_.addEventListener('mousedown', (e) => {
-      this.dragEvent_ = e;
       this.dragging_ = true;
 
       let mouseup = (e) => {
-        this.dragEvent_ = e;
         this.dragging_ = false;
         this.canvas_.removeEventListener('mouseup', mouseup);
       };
@@ -131,9 +130,6 @@ export class Stage extends JFWindow {
           return;
         }
         self._draw();
-        if (self.dragging_) {
-          callback(MouseEvent.MOUSE_DRAGGED)(self.dragEvent_);
-        }
       }
     })().start();
   }

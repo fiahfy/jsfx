@@ -281,7 +281,6 @@ export class Transition extends Animation {
 }
 
 
-// TODO: case if node is Group
 export class FadeTransition extends Transition {
   constructor(duration = new Duration(400), node = null) {
     super();
