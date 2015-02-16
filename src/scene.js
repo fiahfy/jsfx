@@ -315,9 +315,27 @@ export class Node extends JFObject {
         }
         this.dragging_ = false;
       }
+      if (!this.entered_) {
+        if (this._contains(e.offsetX, e.offsetY)) {
+          if (this.onMouseEntered_ != null) {
+            this.onMouseEntered_.handle(new MouseEvent(MouseEvent.MOUSE_ENTERED, e.offsetX, e.offsetY));
+          }
+          this.entered_ = true;
+        }
+      }
       break;
 
     case 'mousemove':
+      if (this.dragging_ || e.which == 0) {
+        if (!this.entered_) {
+          if (this._contains(e.offsetX, e.offsetY)) {
+            if (this.onMouseEntered_ != null) {
+              this.onMouseEntered_.handle(new MouseEvent(MouseEvent.MOUSE_ENTERED, e.offsetX, e.offsetY));
+            }
+            this.entered_ = true;
+          }
+        }
+      }
       if (this.dragging_) {
         if (this.onMouseDragged_ != null) {
           this.onMouseDragged_.handle(new MouseEvent(MouseEvent.MOUSE_DRAGGED, e.offsetX, e.offsetY));
@@ -330,6 +348,37 @@ export class Node extends JFObject {
           }
         }
       }
+      if (this.dragging_ || e.which == 0) {
+        if (this.entered_) {
+          if (!this._contains(e.offsetX, e.offsetY)) {
+            if (this.onMouseExited_ != null) {
+              this.onMouseExited_.handle(new MouseEvent(MouseEvent.MOUSE_EXITED, e.offsetX, e.offsetY));
+            }
+            this.entered_ = false;
+          }
+        }
+      }
+      break;
+
+    case 'mouseover':
+      if (!this.entered_) {
+        if (this._contains(e.offsetX, e.offsetY)) {
+          if (this.onMouseEntered_ != null) {
+            this.onMouseEntered_.handle(new MouseEvent(MouseEvent.MOUSE_ENTERED, e.offsetX, e.offsetY));
+          }
+          this.entered_ = true;
+        }
+      }
+      break;
+
+    case 'mouseout':
+      if (this.entered_) {
+        if (this.onMouseExited_ != null) {
+          this.onMouseExited_.handle(new MouseEvent(MouseEvent.MOUSE_EXITED, e.offsetX, e.offsetY));
+        }
+        this.entered_ = false;
+      }
+      this.dragging_ = false;
       break;
     }
   }

@@ -85,6 +85,20 @@ class TestApp extends Application {
         //console.log(window.event);
       }
     })();
+    group.onMouseEntered = new (class extends EventHandler {
+      handle(event) {
+        circle.fill = Color.GREEN;
+        console.log('enter');
+        //console.log(window.event);
+      }
+    })();
+    group.onMouseExited = new (class extends EventHandler {
+      handle(event) {
+        circle.fill = Color.RED;
+        console.log('exit');
+        //console.log(window.event);
+      }
+    })();
       //return new Hoge();
       //var e = new EventHandler();
       //e.handle = (event) => {
