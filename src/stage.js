@@ -90,7 +90,7 @@ export class Stage extends JFWindow {
         //console.log(window.event);
         //let event = new MouseEvent(eventType, x, y);
         //this.scene._handleEvent(event);
-        this.scene.root._handle();
+        this.scene.root._handle(this.context_);
       };
     };
 

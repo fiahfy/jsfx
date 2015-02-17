@@ -123,6 +123,7 @@ export class Circle extends Shape {
         0, 0, this.radius_,
         0, Math.PI * 2, false
       );
+      context.closePath();
       context.fill();
     }
     if (this._currentStroke != null) {
@@ -149,6 +150,7 @@ export class Circle extends Shape {
         0, 0, this.radius_ + offset,
         0, Math.PI * 2, false
       );
+      context.closePath();
       context.stroke();
     }
   }
@@ -287,12 +289,89 @@ export class Rectangle extends Shape {
   set y(value) {
     this.y_ = value;
   }
-  _contains(x, y = null) {
+  _contains(x, y = null, context = null) {
+    //console.log(context);
+    context.lineWidth = this.strokeWidth_;
+
+    var offsetPosition = 0;
+    var offsetSize = 0;
+    switch (this.strokeType_) {
+      case StrokeType.OUTSIDE:
+        offsetPosition = -this.strokeWidth_ / 2;
+        offsetSize = this.strokeWidth_;
+        break;
+      case StrokeType.INSIDE:
+        offsetPosition = this.strokeWidth_ / 2;
+        offsetSize = -this.strokeWidth_;
+        break;
+      case StrokeType.CENTERED:
+      default:
+        offsetPosition = (this.strokeWidth_ % 2) / 2;
+        offsetSize = 0;
+        break;
+    }
+
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.transform(
+      1, 0, 0, 1,
+      offsetSize / 2 + offsetPosition,
+      offsetSize / 2 + offsetPosition
+    );
+    this._transform(context);
+    context.beginPath();
+    context.moveTo(
+      parseInt(-(this.width_ + offsetSize) / 2 + this.arcWidth_),
+      parseInt(-(this.height_ + offsetSize) / 2)
+    );
+    context.lineTo(
+      parseInt((this.width_ + offsetSize) / 2 - this.arcWidth_),
+      parseInt(-(this.height_ + offsetSize) / 2)
+    );
+    context.quadraticCurveTo(
+      parseInt((this.width_ + offsetSize) / 2),
+      parseInt(-(this.height_ + offsetSize) / 2),
+      parseInt((this.width_ + offsetSize) / 2),
+      parseInt(-(this.height_ + offsetSize) / 2 + this.arcHeight_)
+    );
+    context.lineTo(
+      parseInt((this.width_ + offsetSize) / 2),
+      parseInt((this.height_ + offsetSize) / 2 - this.arcHeight_)
+    );
+    context.quadraticCurveTo(
+      parseInt((this.width_ + offsetSize) / 2),
+      parseInt((this.height_ + offsetSize) / 2),
+      parseInt((this.width_ + offsetSize) / 2 - this.arcWidth_),
+      parseInt((this.height_ + offsetSize) / 2)
+    );
+    context.lineTo(
+      parseInt(-(this.width_ + offsetSize) / 2 + this.arcWidth_),
+      parseInt((this.height_ + offsetSize) / 2)
+    );
+    context.quadraticCurveTo(
+      parseInt(-(this.width_ + offsetSize) / 2),
+      parseInt((this.height_ + offsetSize) / 2),
+      parseInt(-(this.width_ + offsetSize) / 2),
+      parseInt((this.height_ + offsetSize) / 2 - this.arcHeight_)
+    );
+    context.lineTo(
+      parseInt(-(this.width_ + offsetSize) / 2),
+      parseInt(-(this.height_ + offsetSize) / 2 + this.arcHeight_)
+    );
+    context.quadraticCurveTo(
+      parseInt(-(this.width_ + offsetSize) / 2),
+      parseInt(-(this.height_ + offsetSize) / 2),
+      parseInt(-(this.width_ + offsetSize) / 2 + this.arcWidth_),
+      parseInt(-(this.height_ + offsetSize) / 2)
+    );
+    context.closePath();
+    context.stroke();
     // TODO: arc corner
     if (x instanceof Point) {
       y = x.y;
       x = x.x;
     }
+    return context.isPointInPath(x, y);
+
 
     var centerX, centerY;
     if (this._currentX + this.arcWidth_ <= x &&
@@ -394,6 +473,7 @@ export class Rectangle extends Shape {
         parseInt(-this.width_ / 2 + this.arcWidth_),
         parseInt(-this.height_ / 2)
       );
+      context.closePath();
       context.fill();
     }
 
@@ -472,6 +552,7 @@ export class Rectangle extends Shape {
         parseInt(-(this.width_ + offsetSize) / 2 + this.arcWidth_),
         parseInt(-(this.height_ + offsetSize) / 2)
       );
+      context.closePath();
       context.stroke();
     }
   }

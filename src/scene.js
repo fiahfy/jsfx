@@ -208,7 +208,7 @@ export class Node extends JFObject {
   set translateY(value) {
     this.translateY_ = value;
   }
-  _contains(x, y) {
+  _contains(x, y, context) {
     super.abstractMethod();
   }
   get _currentOpacity() {
@@ -262,6 +262,7 @@ export class Node extends JFObject {
     } else {
       plb = this.parent_.layoutBounds;
     }
+    /*
     context.transform(
       1, 0, 0, 1,
       parseInt(lb.minX + lb.width / 2 -
@@ -269,8 +270,17 @@ export class Node extends JFObject {
       parseInt(lb.minY + lb.height / 2 -
       plb.minY - plb.height / 2)
     );
+    */
+    context.translate(parseInt(lb.minX + lb.width / 2 -
+    plb.minX - plb.width / 2),
+      parseInt(lb.minY + lb.height / 2 -
+      plb.minY - plb.height / 2));
 
     // translate
+    context.translate(parseInt(this.translateX_ + this.layoutX_),parseInt(this.translateY_ + this.layoutY_));
+    context.rotate(this.rotate_ * Math.PI / 180);
+    context.scale(this.scaleX_, this.scaleY_);
+    /*
     context.transform(
       1, 0, 0, 1,
       parseInt(this.translateX_ + this.layoutX_),
@@ -289,13 +299,14 @@ export class Node extends JFObject {
       this.scaleX_, 0, 0,
       this.scaleY_, 0, 0
     );
+    */
   }
-  _handle() {
+  _handle(context) {
     let e = window.event;
 
     switch (e.type) {
     case 'mousedown':
-      if (this._contains(e.offsetX, e.offsetY)) {
+      if (this._contains(e.offsetX, e.offsetY, context)) {
         if (this.onMousePressed_ != null) {
           this.onMousePressed_.handle(new MouseEvent(MouseEvent.MOUSE_PRESSED, e.offsetX, e.offsetY));
         }
@@ -308,7 +319,7 @@ export class Node extends JFObject {
         if (this.onMouseReleased_ != null) {
           this.onMouseReleased_.handle(new MouseEvent(MouseEvent.MOUSE_RELEASED, e.offsetX, e.offsetY));
         }
-        if (this._contains(e.offsetX, e.offsetY)) {
+        if (this._contains(e.offsetX, e.offsetY, context)) {
           if (this.onMouseClicked_ != null) {
             this.onMouseClicked_.handle(new MouseEvent(MouseEvent.MOUSE_CLICKED, e.offsetX, e.offsetY));
           }
@@ -316,7 +327,7 @@ export class Node extends JFObject {
         this.dragging_ = false;
       }
       if (!this.entered_) {
-        if (this._contains(e.offsetX, e.offsetY)) {
+        if (this._contains(e.offsetX, e.offsetY, context)) {
           if (this.onMouseEntered_ != null) {
             this.onMouseEntered_.handle(new MouseEvent(MouseEvent.MOUSE_ENTERED, e.offsetX, e.offsetY));
           }
@@ -328,7 +339,7 @@ export class Node extends JFObject {
     case 'mousemove':
       if (this.dragging_ || e.which == 0) {
         if (!this.entered_) {
-          if (this._contains(e.offsetX, e.offsetY)) {
+          if (this._contains(e.offsetX, e.offsetY, context)) {
             if (this.onMouseEntered_ != null) {
               this.onMouseEntered_.handle(new MouseEvent(MouseEvent.MOUSE_ENTERED, e.offsetX, e.offsetY));
             }
@@ -342,7 +353,7 @@ export class Node extends JFObject {
         }
       }
       if (e.which == 0) {
-        if (this._contains(e.offsetX, e.offsetY)) {
+        if (this._contains(e.offsetX, e.offsetY, context)) {
           if (this.onMouseMoved_ != null) {
             this.onMouseMoved_.handle(new MouseEvent(MouseEvent.MOUSE_MOVED, e.offsetX, e.offsetY));
           }
@@ -350,7 +361,7 @@ export class Node extends JFObject {
       }
       if (this.dragging_ || e.which == 0) {
         if (this.entered_) {
-          if (!this._contains(e.offsetX, e.offsetY)) {
+          if (!this._contains(e.offsetX, e.offsetY, context)) {
             if (this.onMouseExited_ != null) {
               this.onMouseExited_.handle(new MouseEvent(MouseEvent.MOUSE_EXITED, e.offsetX, e.offsetY));
             }
@@ -362,7 +373,7 @@ export class Node extends JFObject {
 
     case 'mouseover':
       if (!this.entered_) {
-        if (this._contains(e.offsetX, e.offsetY)) {
+        if (this._contains(e.offsetX, e.offsetY, context)) {
           if (this.onMouseEntered_ != null) {
             this.onMouseEntered_.handle(new MouseEvent(MouseEvent.MOUSE_ENTERED, e.offsetX, e.offsetY));
           }
@@ -418,9 +429,9 @@ export class Group extends Parent {
     let maxY = Math.max.apply(null, maxYArray);
     return new Bounds(minX, minY, maxX - minX, maxY - minY);
   }
-  _contains(x, y) {
+  _contains(x, y, context) {
     return this.children_.some(element => {
-      return element._contains(x, y);
+      return element._contains(x, y, context);
     });
   }
   _draw(context) {
@@ -434,10 +445,10 @@ export class Group extends Parent {
       element._handleEvent(event);
     });
   }
-  _handle() {
+  _handle(context) {
     this.children_.forEach(element => {
-      element._handle();
+      element._handle(context);
     });
-    super._handle();
+    super._handle(context);
   }
 }

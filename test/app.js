@@ -30,14 +30,17 @@ class TestApp extends Application {
     let circle = new Circle(250, 150, 50);
     circle.fill = Color.RED;
     circle.stroke = Color.BLUE;
-    circle.strokeWidth = 2;
+    circle.strokeWidth = 1;
     circle.strokeType = StrokeType.CENTERED;
 
     let rectangle = new Rectangle(100, 100, 100, 100);
     rectangle.fill = Color.color(0, 0, 0, 1);
-    rectangle.stroke = Color.color(1, 0, 0, 1);
-    rectangle.strokeWidth = 2;
+    rectangle.stroke = Color.color(0, 0, 0, 1);
+    rectangle.strokeWidth = 1;
     rectangle.strokeType = StrokeType.CENTERED;
+
+    let line = new Line(200, 200, 300, 300);
+    line.strokeWidth = 100;
 
     let group = new Group(circle, rectangle);
     children.push(group);
@@ -240,7 +243,7 @@ class TestApp extends Application {
       ft.toY = 1.5;
       ft.play();
     }
-    if (0) {
+    if (1) {
       var ft = new TranslateTransition();
       ft.duration = Duration.seconds(3);
       ft.node = n3;
