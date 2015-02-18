@@ -78,23 +78,11 @@ export class Stage extends JFWindow {
     this.context_.clearRect(0, 0, this.width_, this.height_);
   }
   _draw() {
-    this.scene.root._draw(this.context_);
+    this.scene.root._setContext(this.context_);
+    this.scene.root._draw();
   }
   _update() {
-    let callback = (eventType) => {
-      return (e) => {
-        let rect = e.target.getBoundingClientRect();
-        let x = e.clientX - rect.left;
-        let y = e.clientY - rect.top;
-        //console.log(eventType, x, y);
-        //console.log(window.event);
-        //let event = new MouseEvent(eventType, x, y);
-        //this.scene._handleEvent(event);
-        this.scene.root._handle(this.context_);
-      };
-    };
-
-    let eventMap = [
+    let events = [
       'click',
       'mouseover',
       'mouseout',
@@ -103,53 +91,11 @@ export class Stage extends JFWindow {
       'mouseup'
     ];
 
-    eventMap.forEach((element) => {
-      this.canvas_.addEventListener(element, callback(element));
+    events.forEach(element => {
+      this.canvas_.addEventListener(element, (e) => {
+        this.scene.root._handle();
+      });
     });
-
-
-    /*
-    let callback = (eventType) => {
-      return (e) => {
-        let rect = e.target.getBoundingClientRect();
-        let x = e.clientX - rect.left;
-        let y = e.clientY - rect.top;
-        let event = new MouseEvent(eventType, x, y);
-        this.scene._handleEvent(event);
-      };
-    };
-
-    let eventMap = {
-      'click': MouseEvent.MOUSE_CLICKED,
-      'mouseover': MouseEvent.MOUSE_ENTERED,
-      'mouseout': MouseEvent.MOUSE_EXITED,
-      'mousemove': MouseEvent.MOUSE_MOVED,
-      'mousedown': MouseEvent.MOUSE_PRESSED,
-      'mouseup': MouseEvent.MOUSE_RELEASED
-    };
-
-    for (let key of Object.keys(eventMap)) {
-      this.canvas_.addEventListener(key, callback(eventMap[key]));
-    }
-
-    // attach drag event listener
-    this.canvas_.addEventListener('mousemove', (e) => {
-      if (this.dragging_) {
-        callback(MouseEvent.MOUSE_DRAGGED)(e);
-      }
-    });
-
-    this.canvas_.addEventListener('mousedown', (e) => {
-      this.dragging_ = true;
-
-      let mouseup = (e) => {
-        this.dragging_ = false;
-        this.canvas_.removeEventListener('mouseup', mouseup);
-      };
-
-      this.canvas_.addEventListener('mouseup', mouseup);
-    });
-  */
 
     // animation loop
     var self = this;

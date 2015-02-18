@@ -29,9 +29,9 @@ class TestApp extends Application {
 
     let circle = new Circle(250, 150, 50);
     circle.fill = Color.RED;
-    circle.stroke = Color.BLUE;
-    circle.strokeWidth = 1;
-    circle.strokeType = StrokeType.CENTERED;
+    circle.stroke = Color.color(0, 0, 1, 0.5);
+    circle.strokeWidth = 10;
+    circle.strokeType = StrokeType.OUTSIDE;
 
     let rectangle = new Rectangle(100, 100, 100, 100);
     rectangle.fill = Color.color(0, 0, 0, 1);

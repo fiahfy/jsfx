@@ -95,6 +95,7 @@ export class Scene extends JFObject {
 export class Node extends JFObject {
   constructor() {
     super();
+    this.context_ = null;
     this.layoutX_ = 0.0;
     this.layoutY_ = 0.0;
     this.onMouseClicked_ = null;
@@ -208,7 +209,7 @@ export class Node extends JFObject {
   set translateY(value) {
     this.translateY_ = value;
   }
-  _contains(x, y, context) {
+  _contains(x, y) {
     super.abstractMethod();
   }
   get _currentOpacity() {
@@ -218,41 +219,110 @@ export class Node extends JFObject {
     }
     return this.opacity_ * opacity;
   }
-  _draw(context) {
+  _draw() {
     super.abstractMethod();
   }
-  _handleEvent(event) {
-    if (!this._contains(event.x, event.y)) {
-      return
+  _handle() {
+    let e = window.event;
+
+    switch (e.type) {
+      case 'mousedown':
+        if (this._contains(e.offsetX, e.offsetY)) {
+          if (this.onMousePressed_ != null) {
+            this.onMousePressed_.handle(new MouseEvent(MouseEvent.MOUSE_PRESSED, e.offsetX, e.offsetY));
+          }
+          this.dragging_ = true;
+        }
+        break;
+
+      case 'mouseup':
+        if (this.dragging_) {
+          if (this.onMouseReleased_ != null) {
+            this.onMouseReleased_.handle(new MouseEvent(MouseEvent.MOUSE_RELEASED, e.offsetX, e.offsetY));
+          }
+          if (this._contains(e.offsetX, e.offsetY)) {
+            if (this.onMouseClicked_ != null) {
+              this.onMouseClicked_.handle(new MouseEvent(MouseEvent.MOUSE_CLICKED, e.offsetX, e.offsetY));
+            }
+          }
+          this.dragging_ = false;
+        }
+        if (!this.entered_) {
+          if (this._contains(e.offsetX, e.offsetY)) {
+            if (this.onMouseEntered_ != null) {
+              this.onMouseEntered_.handle(new MouseEvent(MouseEvent.MOUSE_ENTERED, e.offsetX, e.offsetY));
+            }
+            this.entered_ = true;
+          }
+        }
+        break;
+
+      case 'mousemove':
+        if (this.dragging_ || e.which == 0) {
+          if (!this.entered_) {
+            if (this._contains(e.offsetX, e.offsetY)) {
+              if (this.onMouseEntered_ != null) {
+                this.onMouseEntered_.handle(new MouseEvent(MouseEvent.MOUSE_ENTERED, e.offsetX, e.offsetY));
+              }
+              this.entered_ = true;
+            }
+          }
+        }
+        if (this.dragging_) {
+          if (this.onMouseDragged_ != null) {
+            this.onMouseDragged_.handle(new MouseEvent(MouseEvent.MOUSE_DRAGGED, e.offsetX, e.offsetY));
+          }
+        }
+        if (e.which == 0) {
+          if (this._contains(e.offsetX, e.offsetY)) {
+            if (this.onMouseMoved_ != null) {
+              this.onMouseMoved_.handle(new MouseEvent(MouseEvent.MOUSE_MOVED, e.offsetX, e.offsetY));
+            }
+          }
+        }
+        if (this.dragging_ || e.which == 0) {
+          if (this.entered_) {
+            if (!this._contains(e.offsetX, e.offsetY)) {
+              if (this.onMouseExited_ != null) {
+                this.onMouseExited_.handle(new MouseEvent(MouseEvent.MOUSE_EXITED, e.offsetX, e.offsetY));
+              }
+              this.entered_ = false;
+            }
+          }
+        }
+        break;
+
+      case 'mouseover':
+        if (!this.entered_) {
+          if (this._contains(e.offsetX, e.offsetY)) {
+            if (this.onMouseEntered_ != null) {
+              this.onMouseEntered_.handle(new MouseEvent(MouseEvent.MOUSE_ENTERED, e.offsetX, e.offsetY));
+            }
+            this.entered_ = true;
+          }
+        }
+        break;
+
+      case 'mouseout':
+        if (this.entered_) {
+          if (this.onMouseExited_ != null) {
+            this.onMouseExited_.handle(new MouseEvent(MouseEvent.MOUSE_EXITED, e.offsetX, e.offsetY));
+          }
+          this.entered_ = false;
+        }
+        this.dragging_ = false;
+        break;
     }
-    if (this.onMouseClicked_ != null && event.eventType.equals(MouseEvent.MOUSE_CLICKED)) {
-      this.onMouseClicked_.handle(event);
-    }
-    if (this.onMouseDragged_ != null && event.eventType.equals(MouseEvent.MOUSE_DRAGGED)) {
-      this.onMouseDragged_.handle(event);
-    }
-    if (this.onMouseEntered_ != null && event.eventType.equals(MouseEvent.MOUSE_ENTERED)) {
-      this.onMouseEntered_.handle(event);
-    }
-    if (this.onMouseExited_ != null && event.eventType.equals(MouseEvent.MOUSE_EXITED)) {
-      this.onMouseExited_.handle(event);
-    }
-    if (this.onMouseMoved_ != null && event.eventType.equals(MouseEvent.MOUSE_MOVED)) {
-      this.onMouseMoved_.handle(event);
-    }
-    if (this.onMousePressed_ != null && event.eventType.equals(MouseEvent.MOUSE_PRESSED)) {
-      this.onMousePressed_.handle(event);
-    }
-    if (this.onMouseReleased_ != null && event.eventType.equals(MouseEvent.MOUSE_RELEASED)) {
-      this.onMouseReleased_.handle(event);
-    }
+  }
+  _setContext(value) {
+    this.context_ = value;
   }
   _setParent(value) {
     this.parent_ = value;
   }
-  _transform(context) {
+  _transform() {
     if (this.parent_ != null) {
-      this.parent_._transform(context);
+      this.parent_._transform();
     }
 
     let lb = this.layoutBounds;
@@ -262,136 +332,15 @@ export class Node extends JFObject {
     } else {
       plb = this.parent_.layoutBounds;
     }
-    /*
-    context.transform(
-      1, 0, 0, 1,
-      parseInt(lb.minX + lb.width / 2 -
-      plb.minX - plb.width / 2),
-      parseInt(lb.minY + lb.height / 2 -
-      plb.minY - plb.height / 2)
+
+    this.context_.translate(
+      lb.minX + lb.width / 2 - plb.minX - plb.width / 2,
+      lb.minY + lb.height / 2 - plb.minY - plb.height / 2
     );
-    */
-    context.translate(parseInt(lb.minX + lb.width / 2 -
-    plb.minX - plb.width / 2),
-      parseInt(lb.minY + lb.height / 2 -
-      plb.minY - plb.height / 2));
 
-    // translate
-    context.translate(parseInt(this.translateX_ + this.layoutX_),parseInt(this.translateY_ + this.layoutY_));
-    context.rotate(this.rotate_ * Math.PI / 180);
-    context.scale(this.scaleX_, this.scaleY_);
-    /*
-    context.transform(
-      1, 0, 0, 1,
-      parseInt(this.translateX_ + this.layoutX_),
-      parseInt(this.translateY_ + this.layoutY_)
-    );
-    // rotate
-    context.transform(
-      Math.cos(this.rotate_ * Math.PI / 180),
-      Math.sin(this.rotate_ * Math.PI / 180),
-      -Math.sin(this.rotate_ * Math.PI / 180),
-      Math.cos(this.rotate_ * Math.PI / 180),
-      0, 0
-    );
-    // scale
-    context.transform(
-      this.scaleX_, 0, 0,
-      this.scaleY_, 0, 0
-    );
-    */
-  }
-  _handle(context) {
-    let e = window.event;
-
-    switch (e.type) {
-    case 'mousedown':
-      if (this._contains(e.offsetX, e.offsetY, context)) {
-        if (this.onMousePressed_ != null) {
-          this.onMousePressed_.handle(new MouseEvent(MouseEvent.MOUSE_PRESSED, e.offsetX, e.offsetY));
-        }
-        this.dragging_ = true;
-      }
-      break;
-
-    case 'mouseup':
-      if (this.dragging_) {
-        if (this.onMouseReleased_ != null) {
-          this.onMouseReleased_.handle(new MouseEvent(MouseEvent.MOUSE_RELEASED, e.offsetX, e.offsetY));
-        }
-        if (this._contains(e.offsetX, e.offsetY, context)) {
-          if (this.onMouseClicked_ != null) {
-            this.onMouseClicked_.handle(new MouseEvent(MouseEvent.MOUSE_CLICKED, e.offsetX, e.offsetY));
-          }
-        }
-        this.dragging_ = false;
-      }
-      if (!this.entered_) {
-        if (this._contains(e.offsetX, e.offsetY, context)) {
-          if (this.onMouseEntered_ != null) {
-            this.onMouseEntered_.handle(new MouseEvent(MouseEvent.MOUSE_ENTERED, e.offsetX, e.offsetY));
-          }
-          this.entered_ = true;
-        }
-      }
-      break;
-
-    case 'mousemove':
-      if (this.dragging_ || e.which == 0) {
-        if (!this.entered_) {
-          if (this._contains(e.offsetX, e.offsetY, context)) {
-            if (this.onMouseEntered_ != null) {
-              this.onMouseEntered_.handle(new MouseEvent(MouseEvent.MOUSE_ENTERED, e.offsetX, e.offsetY));
-            }
-            this.entered_ = true;
-          }
-        }
-      }
-      if (this.dragging_) {
-        if (this.onMouseDragged_ != null) {
-          this.onMouseDragged_.handle(new MouseEvent(MouseEvent.MOUSE_DRAGGED, e.offsetX, e.offsetY));
-        }
-      }
-      if (e.which == 0) {
-        if (this._contains(e.offsetX, e.offsetY, context)) {
-          if (this.onMouseMoved_ != null) {
-            this.onMouseMoved_.handle(new MouseEvent(MouseEvent.MOUSE_MOVED, e.offsetX, e.offsetY));
-          }
-        }
-      }
-      if (this.dragging_ || e.which == 0) {
-        if (this.entered_) {
-          if (!this._contains(e.offsetX, e.offsetY, context)) {
-            if (this.onMouseExited_ != null) {
-              this.onMouseExited_.handle(new MouseEvent(MouseEvent.MOUSE_EXITED, e.offsetX, e.offsetY));
-            }
-            this.entered_ = false;
-          }
-        }
-      }
-      break;
-
-    case 'mouseover':
-      if (!this.entered_) {
-        if (this._contains(e.offsetX, e.offsetY, context)) {
-          if (this.onMouseEntered_ != null) {
-            this.onMouseEntered_.handle(new MouseEvent(MouseEvent.MOUSE_ENTERED, e.offsetX, e.offsetY));
-          }
-          this.entered_ = true;
-        }
-      }
-      break;
-
-    case 'mouseout':
-      if (this.entered_) {
-        if (this.onMouseExited_ != null) {
-          this.onMouseExited_.handle(new MouseEvent(MouseEvent.MOUSE_EXITED, e.offsetX, e.offsetY));
-        }
-        this.entered_ = false;
-      }
-      this.dragging_ = false;
-      break;
-    }
+    this.context_.translate(this.translateX_ + this.layoutX_, this.translateY_ + this.layoutY_);
+    this.context_.rotate(this.rotate_ * Math.PI / 180);
+    this.context_.scale(this.scaleX_, this.scaleY_);
   }
 }
 
@@ -429,26 +378,27 @@ export class Group extends Parent {
     let maxY = Math.max.apply(null, maxYArray);
     return new Bounds(minX, minY, maxX - minX, maxY - minY);
   }
-  _contains(x, y, context) {
+  _contains(x, y) {
     return this.children_.some(element => {
-      return element._contains(x, y, context);
+      return element._contains(x, y);
     });
   }
-  _draw(context) {
+  _draw() {
     this.children_.forEach(element => {
       element._setParent(this);
-      element._draw(context);
+      element._draw();
     });
   }
-  _handleEvent(event) {
+  _handle() {
     this.children_.forEach(element => {
-      element._handleEvent(event);
+      element._handle();
     });
+    super._handle();
   }
-  _handle(context) {
+  _setContext(context) {
     this.children_.forEach(element => {
-      element._handle(context);
+      element._setContext(context);
     });
-    super._handle(context);
+    super._setContext(context);
   }
 }
