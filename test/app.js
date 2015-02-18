@@ -35,9 +35,11 @@ class TestApp extends Application {
 
     let rectangle = new Rectangle(100, 100, 100, 100);
     rectangle.fill = Color.color(0, 0, 0, 1);
-    rectangle.stroke = Color.color(0, 0, 0, 1);
-    rectangle.strokeWidth = 1;
-    rectangle.strokeType = StrokeType.CENTERED;
+    rectangle.stroke = Color.color(0.5, 0, 0, 0.5);
+    rectangle.strokeWidth = 10;
+    rectangle.strokeType = StrokeType.OUTSIDE;
+    rectangle.arcWidth = 10;
+    rectangle.arcHeight = 10;
 
     let line = new Line(200, 200, 300, 300);
     line.strokeWidth = 100;
@@ -243,7 +245,7 @@ class TestApp extends Application {
       ft.toY = 1.5;
       ft.play();
     }
-    if (1) {
+    if (0) {
       var ft = new TranslateTransition();
       ft.duration = Duration.seconds(3);
       ft.node = n3;

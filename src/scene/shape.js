@@ -477,82 +477,55 @@ export class Rectangle extends Shape {
       context.fill();
     }
 
+
+
+
+    let offsetPosition = 0;
+    let offsetSize = 0;
+    switch (this.strokeType_) {
+      case StrokeType.OUTSIDE:
+        offsetPosition = -this.strokeWidth_ / 2;
+        offsetSize = this.strokeWidth_;
+        break;
+      case StrokeType.INSIDE:
+        offsetPosition = this.strokeWidth_ / 2;
+        offsetSize = -this.strokeWidth_;
+        break;
+      case StrokeType.CENTERED:
+      default:
+        offsetPosition = (this.strokeWidth_ % 2) / 2;
+        offsetSize = 0;
+        break;
+    }
+
+    let halfWidth = (this.width_ + offsetSize) / 2;
+    let halfHeight = (this.height_ + offsetSize) / 2;
+
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.translate(offsetSize / 2 + offsetPosition, offsetSize / 2 + offsetPosition);
+    this._transform(context);
+    context.beginPath();
+    context.moveTo(parseInt(-halfWidth + this.arcWidth_), parseInt(-halfHeight));
+    context.lineTo(parseInt(halfWidth - this.arcWidth_), parseInt(-halfHeight));
+    context.quadraticCurveTo(parseInt(halfWidth), parseInt(-halfHeight), parseInt(halfWidth), parseInt(-halfHeight + this.arcHeight_));
+    context.lineTo(parseInt(halfWidth), parseInt(halfHeight - this.arcHeight_));
+    context.quadraticCurveTo(parseInt(halfWidth), parseInt(halfHeight), parseInt(halfWidth - this.arcWidth_), parseInt(halfHeight));
+    context.lineTo(parseInt(-halfWidth + this.arcWidth_), parseInt(halfHeight));
+    context.quadraticCurveTo(parseInt(-halfWidth), parseInt(halfHeight), parseInt(-halfWidth), parseInt(halfHeight - this.arcHeight_));
+    context.lineTo(parseInt(-halfWidth), parseInt(-halfHeight + this.arcHeight_));
+    context.quadraticCurveTo(parseInt(-halfWidth), parseInt(-halfHeight), parseInt(-halfWidth + this.arcWidth_), parseInt(-halfHeight));
+    context.closePath();
+
+    if (this._currentFill != null) {
+      //context.fillStyle = this._currentFill._colorString;
+      //context.globalAlpha = this._currentFill.opacity;
+      //context.fill();
+    }
+
     if (this._currentStroke != null) {
       context.strokeStyle = this._currentStroke._colorString;
       context.globalAlpha = this._currentStroke.opacity;
       context.lineWidth = this.strokeWidth_;
-
-      var offsetPosition = 0;
-      var offsetSize = 0;
-      switch (this.strokeType_) {
-        case StrokeType.OUTSIDE:
-          offsetPosition = -this.strokeWidth_ / 2;
-          offsetSize = this.strokeWidth_;
-          break;
-        case StrokeType.INSIDE:
-          offsetPosition = this.strokeWidth_ / 2;
-          offsetSize = -this.strokeWidth_;
-          break;
-        case StrokeType.CENTERED:
-        default:
-          offsetPosition = (this.strokeWidth_ % 2) / 2;
-          offsetSize = 0;
-          break;
-      }
-
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      context.transform(
-        1, 0, 0, 1,
-        offsetSize / 2 + offsetPosition,
-        offsetSize / 2 + offsetPosition
-      );
-      this._transform(context);
-      context.beginPath();
-      context.moveTo(
-        parseInt(-(this.width_ + offsetSize) / 2 + this.arcWidth_),
-        parseInt(-(this.height_ + offsetSize) / 2)
-      );
-      context.lineTo(
-        parseInt((this.width_ + offsetSize) / 2 - this.arcWidth_),
-        parseInt(-(this.height_ + offsetSize) / 2)
-      );
-      context.quadraticCurveTo(
-        parseInt((this.width_ + offsetSize) / 2),
-        parseInt(-(this.height_ + offsetSize) / 2),
-        parseInt((this.width_ + offsetSize) / 2),
-        parseInt(-(this.height_ + offsetSize) / 2 + this.arcHeight_)
-      );
-      context.lineTo(
-        parseInt((this.width_ + offsetSize) / 2),
-        parseInt((this.height_ + offsetSize) / 2 - this.arcHeight_)
-      );
-      context.quadraticCurveTo(
-        parseInt((this.width_ + offsetSize) / 2),
-        parseInt((this.height_ + offsetSize) / 2),
-        parseInt((this.width_ + offsetSize) / 2 - this.arcWidth_),
-        parseInt((this.height_ + offsetSize) / 2)
-      );
-      context.lineTo(
-        parseInt(-(this.width_ + offsetSize) / 2 + this.arcWidth_),
-        parseInt((this.height_ + offsetSize) / 2)
-      );
-      context.quadraticCurveTo(
-        parseInt(-(this.width_ + offsetSize) / 2),
-        parseInt((this.height_ + offsetSize) / 2),
-        parseInt(-(this.width_ + offsetSize) / 2),
-        parseInt((this.height_ + offsetSize) / 2 - this.arcHeight_)
-      );
-      context.lineTo(
-        parseInt(-(this.width_ + offsetSize) / 2),
-        parseInt(-(this.height_ + offsetSize) / 2 + this.arcHeight_)
-      );
-      context.quadraticCurveTo(
-        parseInt(-(this.width_ + offsetSize) / 2),
-        parseInt(-(this.height_ + offsetSize) / 2),
-        parseInt(-(this.width_ + offsetSize) / 2 + this.arcWidth_),
-        parseInt(-(this.height_ + offsetSize) / 2)
-      );
-      context.closePath();
       context.stroke();
     }
   }
