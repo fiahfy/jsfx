@@ -135,16 +135,16 @@ export class Circle extends Shape {
     if (this._currentStroke != null) {
       let offset = 0;
       switch (this.strokeType_) {
-      case StrokeType.OUTSIDE:
-        offset = this.strokeWidth_ / 2;
-        break;
-      case StrokeType.INSIDE:
-        offset = -this.strokeWidth_ / 2;
-        break;
-      case StrokeType.CENTERED:
-      default:
-        offset = 0;
-        break;
+        case StrokeType.OUTSIDE:
+          offset = this.strokeWidth_ / 2;
+          break;
+        case StrokeType.INSIDE:
+          offset = -this.strokeWidth_ / 2;
+          break;
+        case StrokeType.CENTERED:
+        default:
+          offset = 0;
+          break;
       }
       this._path(offset);
       this.context_.strokeStyle = this._currentStroke._colorString;
@@ -299,15 +299,15 @@ export class Rectangle extends Shape {
     let offset = 0;
     switch (this.strokeType_) {
       case StrokeType.OUTSIDE:
-      offset = this.strokeWidth_;
-      break;
-    case StrokeType.INSIDE:
-      offset = 0;
-      break;
-    case StrokeType.CENTERED:
-    default:
-      offset = this.strokeWidth_ / 2;
-      break;
+        offset = this.strokeWidth_;
+        break;
+      case StrokeType.INSIDE:
+        offset = 0;
+        break;
+      case StrokeType.CENTERED:
+      default:
+        offset = this.strokeWidth_ / 2;
+        break;
     }
     this._path(offset);
     return this.context_.isPointInPath(x, y);
@@ -328,16 +328,16 @@ export class Rectangle extends Shape {
     if (this._currentStroke != null) {
       let offset = 0;
       switch (this.strokeType_) {
-      case StrokeType.OUTSIDE:
-        offset = this.strokeWidth_ / 2;
-        break;
-      case StrokeType.INSIDE:
-        offset = -this.strokeWidth_ / 2;
-        break;
-      case StrokeType.CENTERED:
-      default:
-        offset = 0;
-        break;
+        case StrokeType.OUTSIDE:
+          offset = this.strokeWidth_ / 2;
+          break;
+        case StrokeType.INSIDE:
+          offset = -this.strokeWidth_ / 2;
+          break;
+        case StrokeType.CENTERED:
+        default:
+          offset = 0;
+          break;
       }
       this._path(offset);
       this.context_.strokeStyle = this._currentStroke._colorString;
