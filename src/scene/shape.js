@@ -116,6 +116,9 @@ export class Circle extends Shape {
         offset = this.strokeWidth_ / 2;
         break;
     }
+    if (this._currentStroke == null) {
+      offset = 0;
+    }
     this._path(offset);
     return this.context_.isPointInPath(x, y);
   }
@@ -157,10 +160,7 @@ export class Circle extends Shape {
     this.context_.setTransform(1, 0, 0, 1, 0, 0);
     this._transform();
     this.context_.beginPath();
-    this.context_.arc(
-      0, 0, this.radius_ + offset,
-      0, Math.PI * 2, false
-    );
+    this.context_.arc(0, 0, this.radius_ + offset, 0, Math.PI * 2, false);
     this.context_.closePath();
   }
 }
@@ -206,7 +206,8 @@ export class Line extends Shape {
     this.startY_ = value;
   }
   _contains(x, y = null) {
-    return false;
+    this._path(this.strokeWidth_ / 2);
+    return this.context_.isPointInPath(x, y);
   }
   get _currentEndX() {
     return this.endX_ + this.layoutX_ + this.translateX_;
@@ -222,21 +223,33 @@ export class Line extends Shape {
   }
   _draw(context) {
     if (this._currentStroke != null) {
-      this._path();
+      this._path(0);
       this.context_.strokeStyle = this._currentStroke._colorString;
       this.context_.globalAlpha = this._currentStroke.opacity;
       this.context_.lineWidth = this.strokeWidth_;
       this.context_.stroke();
     }
   }
-  _path() {
+  _path(offset) {
     var lb = this.layoutBounds;
 
     this.context_.setTransform(1, 0, 0, 1, 0, 0);
     this._transform();
-    this.context_.beginPath();
-    this.context_.moveTo(this.startX_ - lb.minX - lb.width / 2, this.startY_ - lb.minY - lb.height / 2);
-    this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2, this.endY_ - lb.minY - lb.height / 2);
+    if (offset == 0) {
+      this.context_.beginPath();
+      this.context_.moveTo(this.startX_ - lb.minX - lb.width / 2, this.startY_ - lb.minY - lb.height / 2);
+      this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2, this.endY_ - lb.minY - lb.height / 2);
+    } else {
+      let w = offset * (this.endY_ - this.startY_) / Math.sqrt(Math.pow(lb.width, 2) + Math.pow(lb.height, 2));
+      let h = offset * (this.endX_ - this.startX_) / Math.sqrt(Math.pow(lb.width, 2) + Math.pow(lb.height, 2));
+
+      this.context_.beginPath();
+      this.context_.moveTo(this.startX_ - lb.minX - lb.width / 2 + w, this.startY_ - lb.minY - lb.height / 2 - h);
+      this.context_.lineTo(this.startX_ - lb.minX - lb.width / 2 - w, this.startY_ - lb.minY - lb.height / 2 + h);
+      this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2 - w, this.endY_ - lb.minY - lb.height / 2 + h);
+      this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2 + w, this.endY_ - lb.minY - lb.height / 2 - h);
+      this.context_.closePath();
+    }
   }
 }
 
@@ -308,6 +321,9 @@ export class Rectangle extends Shape {
       default:
         offset = this.strokeWidth_ / 2;
         break;
+    }
+    if (this._currentStroke == null) {
+      offset = 0;
     }
     this._path(offset);
     return this.context_.isPointInPath(x, y);

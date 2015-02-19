@@ -36,15 +36,15 @@ class TestApp extends Application {
     let rectangle = new Rectangle(100, 100, 100, 100);
     rectangle.fill = Color.color(0, 0, 0, 1);
     rectangle.stroke = Color.color(0.5, 0, 0, 0.5);
-    rectangle.strokeWidth = 10;
+    rectangle.strokeWidth = 50;
     rectangle.strokeType = StrokeType.OUTSIDE;
-    rectangle.arcWidth = 10;
-    rectangle.arcHeight = 10;
+    rectangle.arcWidth = 50;
+    rectangle.arcHeight = 50;
 
-    let line = new Line(200, 200, 300, 300);
-    line.strokeWidth = 100;
+    let line = new Line(300, 300, 400, 250);
+    line.strokeWidth = 50;
 
-    let group = new Group(circle, rectangle);
+    let group = new Group(circle, rectangle, line);
     children.push(group);
 
     rectangle.onMouseEntered = (() => {
