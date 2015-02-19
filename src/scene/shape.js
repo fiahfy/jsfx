@@ -366,19 +366,34 @@ export class Rectangle extends Shape {
     // TODO: arc corner
     let w = this.width_ / 2 + offset;
     let h = this.height_ / 2 + offset
-
-    this.context_.setTransform(1, 0, 0, 1, 0, 0);
-    this._transform();
-    this.context_.beginPath();
-    this.context_.moveTo(-w + this.arcWidth_, -h);
-    this.context_.lineTo(w - this.arcWidth_, -h);
-    this.context_.quadraticCurveTo(w, -h, w, -h + this.arcHeight_);
-    this.context_.lineTo(w, h - this.arcHeight_);
-    this.context_.quadraticCurveTo(w, h, w - this.arcWidth_, h);
-    this.context_.lineTo(-w + this.arcWidth_, h);
-    this.context_.quadraticCurveTo(-w, h, -w, h - this.arcHeight_);
-    this.context_.lineTo(-w, -h + this.arcHeight_);
-    this.context_.quadraticCurveTo(-w, -h, -w + this.arcWidth_, -h);
-    this.context_.closePath();
+    if (0) {
+      this.context_.setTransform(1, 0, 0, 1, 0, 0);
+      this._transform();
+      this.context_.beginPath();
+      this.context_.moveTo(-w + this.arcWidth_, -h);
+      this.context_.lineTo(w - this.arcWidth_, -h);
+      this.context_.quadraticCurveTo(w, -h, w, -h + this.arcHeight_);
+      this.context_.lineTo(w, h - this.arcHeight_);
+      this.context_.quadraticCurveTo(w, h, w - this.arcWidth_, h);
+      this.context_.lineTo(-w + this.arcWidth_, h);
+      this.context_.quadraticCurveTo(-w, h, -w, h - this.arcHeight_);
+      this.context_.lineTo(-w, -h + this.arcHeight_);
+      this.context_.quadraticCurveTo(-w, -h, -w + this.arcWidth_, -h);
+      this.context_.closePath();
+    } else {
+      this.context_.setTransform(1, 0, 0, 1, 0, 0);
+      this._transform();
+      this.context_.beginPath();
+      this.context_.moveTo(-w + this.arcWidth_ * (offset + this.width_ / 2) / (this.width_ / 2), -h);
+      this.context_.lineTo(w - this.arcWidth_ * (offset + this.width_ / 2) / (this.width_ / 2), -h);
+      this.context_.quadraticCurveTo(w, -h, w, -h + this.arcHeight_ * (offset + this.height_ / 2) / (this.height_ / 2));
+      this.context_.lineTo(w, h - this.arcHeight_ * (offset + this.height_ / 2) / (this.height_ / 2));
+      this.context_.quadraticCurveTo(w, h, w - this.arcWidth_ * (offset + this.width_ / 2) / (this.width_ / 2), h);
+      this.context_.lineTo(-w + this.arcWidth_ * (offset + this.width_ / 2) / (this.width_ / 2), h);
+      this.context_.quadraticCurveTo(-w, h, -w, h - this.arcHeight_ * (offset + this.height_ / 2) / (this.height_ / 2));
+      this.context_.lineTo(-w, -h + this.arcHeight_ * (offset + this.height_ / 2) / (this.height_ / 2));
+      this.context_.quadraticCurveTo(-w, -h, -w + this.arcWidth_ * (offset + this.width_ / 2) / (this.width_ / 2), -h);
+      this.context_.closePath();
+    }
   }
 }
