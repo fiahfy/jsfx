@@ -239,7 +239,7 @@ export class Line extends Shape {
   get _currentStartY() {
     return this.startY_ + this.layoutY_ + this.translateY_;
   }
-  _draw(context) {
+  _draw() {
     if (this._currentStroke != null) {
       this._path(0);
       this.context_.strokeStyle = this._currentStroke._colorString;
@@ -413,7 +413,6 @@ export class Rectangle extends Shape {
     }
   }
   _path(offset) {
-    // TODO: arc corner
     let w = this.width_ / 2 + offset;
     let h = this.height_ / 2 + offset
     if (0) {
