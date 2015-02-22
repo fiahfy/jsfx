@@ -223,6 +223,10 @@ export class Node extends JFObject {
     super.abstractMethod();
   }
   _handle() {
+    if (this.context_ == null) {
+      return;
+    }
+
     let e = window.event;
 
     switch (e.type) {
