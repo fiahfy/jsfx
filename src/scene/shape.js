@@ -12,6 +12,13 @@ import {Node} from '../scene.js';
 import {Color} from './paint.js';
 
 
+export var StrokeLineCap = {
+  BUTT: 'butt',
+  ROUND: 'round',
+  SQUARE: 'square'
+};
+
+
 export var StrokeType = {
   CENTERED: 'centered',
   INSIDE: 'inside',
@@ -24,6 +31,7 @@ export class Shape extends Node {
     super();
     this.fill_ = null;
     this.stroke_ = null;
+    this.strokeLineCap_ = StrokeLineCap.BUTT;
     this.strokeType_ = StrokeType.CENTERED;
     this.strokeWidth_ = 1.0;
   }
@@ -38,6 +46,12 @@ export class Shape extends Node {
   }
   set stroke(value) {
     this.stroke_ = value;
+  }
+  get strokeLineCap() {
+    return this.strokeLineCap_;
+  }
+  set strokeLineCap(value) {
+    this.strokeLineCap_ = value;
   }
   get strokeType() {
     return this.strokeType_;
@@ -103,8 +117,24 @@ export class Circle extends Shape {
       y = x.y;
       x = x.x;
     }
-    let point = new Point(this._currentCenterX, this._currentCenterY);
-    return point.distance(x, y) <= this.radius_;
+    let offset = 0;
+    switch (this.strokeType_) {
+      case StrokeType.OUTSIDE:
+        offset = this.strokeWidth_;
+        break;
+      case StrokeType.INSIDE:
+        offset = 0;
+        break;
+      case StrokeType.CENTERED:
+      default:
+        offset = this.strokeWidth_ / 2;
+        break;
+    }
+    if (this._currentStroke == null) {
+      offset = 0;
+    }
+    this._path(offset);
+    return this.context_.isPointInPath(x, y);
   }
   get _currentCenterX() {
     return this.centerX_ + this.layoutX_ + this.translateX_;
@@ -112,45 +142,40 @@ export class Circle extends Shape {
   get _currentCenterY() {
     return this.centerY_ + this.layoutY_ + this.translateY_;
   }
-  _draw(context) {
+  _draw() {
     if (this._currentFill != null) {
-      context.fillStyle = this._currentFill._colorString;
-      context.globalAlpha = this._currentFill.opacity;
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      this._transform(context);
-      context.beginPath();
-      context.arc(
-        0, 0, this.radius_,
-        0, Math.PI * 2, false
-      );
-      context.fill();
+      this._path(0);
+      this.context_.fillStyle = this._currentFill._colorString;
+      this.context_.globalAlpha = this._currentFill.opacity;
+      this.context_.fill();
     }
     if (this._currentStroke != null) {
-      context.strokeStyle = this._currentStroke._colorString;
-      context.globalAlpha = this._currentStroke.opacity;
-      context.lineWidth = this.strokeWidth_;
-      var offset = 0;
+      let offset = 0;
       switch (this.strokeType_) {
         case StrokeType.OUTSIDE:
           offset = this.strokeWidth_ / 2;
           break;
         case StrokeType.INSIDE:
-          offset = - this.strokeWidth_ / 2;
+          offset = -this.strokeWidth_ / 2;
           break;
         case StrokeType.CENTERED:
         default:
           offset = 0;
           break;
       }
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      this._transform(context);
-      context.beginPath();
-      context.arc(
-        0, 0, this.radius_ + offset,
-        0, Math.PI * 2, false
-      );
-      context.stroke();
+      this._path(offset);
+      this.context_.strokeStyle = this._currentStroke._colorString;
+      this.context_.globalAlpha = this._currentStroke.opacity;
+      this.context_.lineWidth = this.strokeWidth_;
+      this.context_.stroke();
     }
+  }
+  _path(offset) {
+    this.context_.setTransform(1, 0, 0, 1, 0, 0);
+    this._transform();
+    this.context_.beginPath();
+    this.context_.arc(0, 0, this.radius_ + offset, 0, Math.PI * 2, false);
+    this.context_.closePath();
   }
 }
 
@@ -195,7 +220,12 @@ export class Line extends Shape {
     this.startY_ = value;
   }
   _contains(x, y = null) {
-    return false;
+    if (x instanceof Point) {
+      y = x.y;
+      x = x.x;
+    }
+    this._path(this.strokeWidth_ / 2);
+    return this.context_.isPointInPath(x, y);
   }
   get _currentEndX() {
     return this.endX_ + this.layoutX_ + this.translateX_;
@@ -209,29 +239,66 @@ export class Line extends Shape {
   get _currentStartY() {
     return this.startY_ + this.layoutY_ + this.translateY_;
   }
-  _draw(context) {
+  _draw() {
     if (this._currentStroke != null) {
-      context.strokeStyle = this._currentStroke._colorString;
-      context.globalAlpha = this._currentStroke.opacity;
-      context.lineWidth = this.strokeWidth_;
+      this._path(0);
+      this.context_.strokeStyle = this._currentStroke._colorString;
+      this.context_.globalAlpha = this._currentStroke.opacity;
+      this.context_.lineCap = this.strokeLineCap_;
+      this.context_.lineWidth = this.strokeWidth_;
+      this.context_.stroke();
+    }
+  }
+  _path(offset) {
+    var lb = this.layoutBounds;
 
-      var offset = (this.strokeWidth_ % 2) / 2;
+    this.context_.setTransform(1, 0, 0, 1, 0, 0);
+    this._transform();
+    if (offset == 0) {
+      this.context_.beginPath();
+      this.context_.moveTo(this.startX_ - lb.minX - lb.width / 2, this.startY_ - lb.minY - lb.height / 2);
+      this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2, this.endY_ - lb.minY - lb.height / 2);
 
-      var lb = this.layoutBounds;
+    } else {
+      let w = offset * (this.endY_ - this.startY_) / Math.sqrt(Math.pow(lb.width, 2) + Math.pow(lb.height, 2));
+      let h = offset * (this.endX_ - this.startX_) / Math.sqrt(Math.pow(lb.width, 2) + Math.pow(lb.height, 2));
 
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      context.transform(1, 0, 0, 1, offset, offset);
-      this._transform(context);
-      context.beginPath();
-      context.moveTo(
-        parseInt(this.startX_ - lb.minX - lb.width / 2),
-        parseInt(this.startY_ - lb.minY - lb.height / 2)
-      );
-      context.lineTo(
-        parseInt(this.endX_ - lb.minX - lb.width / 2),
-        parseInt(this.endY_ - lb.minY - lb.height / 2)
-      );
-      context.stroke();
+      switch (this.strokeLineCap_) {
+        case StrokeLineCap.SQUARE:
+          this.context_.beginPath();
+          this.context_.moveTo(this.startX_ - lb.minX - lb.width / 2 + w - h, this.startY_ - lb.minY - lb.height / 2 - h - w);
+          this.context_.lineTo(this.startX_ - lb.minX - lb.width / 2 - w - h, this.startY_ - lb.minY - lb.height / 2 + h - w);
+          this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2 - w + h, this.endY_ - lb.minY - lb.height / 2 + h + w);
+          this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2 + w + h, this.endY_ - lb.minY - lb.height / 2 - h + w);
+          this.context_.closePath();
+          break;
+        case StrokeLineCap.ROUND:
+          let s = Math.atan(-(this.endX_ - this.startX_) / (this.endY_ - this.startY_));
+          let e = s + Math.PI;
+          if (this.startY_ > this.endY_) {
+            s += Math.PI;
+            e += Math.PI;
+          }
+
+          this.context_.beginPath();
+          this.context_.moveTo(this.startX_ - lb.minX - lb.width / 2 + w, this.startY_ - lb.minY - lb.height / 2 - h);
+          this.context_.arc(this.startX_ - lb.minX - lb.width / 2, this.startY_ - lb.minY - lb.height / 2, offset, s, e, true);
+          this.context_.lineTo(this.startX_ - lb.minX - lb.width / 2 - w, this.startY_ - lb.minY - lb.height / 2 + h);
+          this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2 - w, this.endY_ - lb.minY - lb.height / 2 + h);
+          this.context_.arc(this.endX_ - lb.minX - lb.width / 2, this.endY_ - lb.minY - lb.height / 2, offset, e, s, true);
+          this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2 + w, this.endY_ - lb.minY - lb.height / 2 - h);
+          this.context_.closePath();
+          break;
+        case StrokeLineCap.BUTT:
+        default:
+          this.context_.beginPath();
+          this.context_.moveTo(this.startX_ - lb.minX - lb.width / 2 + w, this.startY_ - lb.minY - lb.height / 2 - h);
+          this.context_.lineTo(this.startX_ - lb.minX - lb.width / 2 - w, this.startY_ - lb.minY - lb.height / 2 + h);
+          this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2 - w, this.endY_ - lb.minY - lb.height / 2 + h);
+          this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2 + w, this.endY_ - lb.minY - lb.height / 2 - h);
+          this.context_.closePath();
+          break;
+      }
     }
   }
 }
@@ -288,54 +355,28 @@ export class Rectangle extends Shape {
     this.y_ = value;
   }
   _contains(x, y = null) {
-    // TODO: arc corner
     if (x instanceof Point) {
       y = x.y;
       x = x.x;
     }
-
-    var centerX, centerY;
-    if (this._currentX + this.arcWidth_ <= x &&
-      x <= this._currentX + this.width_ - this.arcWidth_ &&
-      this._currentY <= y &&
-      y <= this._currentY + this.height_) {
-      return true;
-    } else if (this._currentX <= x &&
-      x <= this._currentX + this.width_ &&
-      this._currentY + this.arcHeight_ <= y &&
-      y <= this._currentY + this.height_ - this.arcHeight_) {
-      return true;
-    } else if (this._currentX <= x &&
-      x <= this._currentX + this.arcWidth_ &&
-      this._currentY <= y &&
-      y <= this._currentY + this.arcHeight_) {
-      centerX = this._currentX + this.arcWidth_;
-      centerY = this._currentY + this.arcHeight_;
-      //
-    } else if (this._currentX + this.width_ - this.arcWidth_ <= x &&
-      x <= this._currentX + this.width_ &&
-      this._currentY <= y &&
-      y <= this._currentY + this.arcHeight_) {
-      centerX = this._currentX + this.width_ - this.arcWidth_;
-      centerY = this._currentY + this.arcHeight_;
-      //
-    } else if (this._currentX + this.width_ - this.arcWidth_ <= x &&
-      x <= this._currentX + this.width_ &&
-      this._currentY + this.height_ - this.arcHeight_ <= y &&
-      y <= this._currentY + this.height_) {
-      centerX = this._currentX + this.width_ - this.arcWidth_;
-      centerY = this._currentY + this.height_ - this.arcHeight_;
-      //
-    } else if (this._currentX <= x &&
-      x <= this._currentX + this.arcWidth_ &&
-      this._currentY + this.height_ - this.arcHeight_ <= y &&
-      y <= this._currentY + this.height_) {
-      centerX = this._currentX + this.arcWidth_;
-      centerY = this._currentY + this.height_ - this.arcHeight_;
-      //
+    let offset = 0;
+    switch (this.strokeType_) {
+      case StrokeType.OUTSIDE:
+        offset = this.strokeWidth_;
+        break;
+      case StrokeType.INSIDE:
+        offset = 0;
+        break;
+      case StrokeType.CENTERED:
+      default:
+        offset = this.strokeWidth_ / 2;
+        break;
     }
-
-    return false;
+    if (this._currentStroke == null) {
+      offset = 0;
+    }
+    this._path(offset);
+    return this.context_.isPointInPath(x, y);
   }
   get _currentX() {
     return this.x_ + this.layoutX_ + this.translateX_;
@@ -343,136 +384,65 @@ export class Rectangle extends Shape {
   get _currentY() {
     return this.y_ + this.layoutY_ + this.translateY_;
   }
-  _draw(context) {
+  _draw() {
     if (this._currentFill != null) {
-      context.fillStyle = this._currentFill._colorString;
-      context.globalAlpha = this._currentFill.opacity;
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      this._transform(context);
-      context.beginPath();
-      context.moveTo(
-        parseInt(-this.width_ / 2 + this.arcWidth_),
-        parseInt(-this.height_ / 2)
-      );
-      context.lineTo(
-        parseInt(this.width_ / 2 - this.arcWidth_),
-        parseInt(-this.height_ / 2)
-      );
-      context.quadraticCurveTo(
-        parseInt(this.width_ / 2),
-        parseInt(-this.height_ / 2),
-        parseInt(this.width_ / 2),
-        parseInt(-this.height_ / 2 + this.arcHeight_)
-      );
-      context.lineTo(
-        parseInt(this.width_ / 2),
-        parseInt(this.height_ / 2 - this.arcHeight_)
-      );
-      context.quadraticCurveTo(
-        parseInt(this.width_ / 2),
-        parseInt(this.height_ / 2),
-        parseInt(this.width_ / 2 - this.arcWidth_),
-        parseInt(this.height_ / 2)
-      );
-      context.lineTo(
-        parseInt(-this.width_ / 2 + this.arcWidth_),
-        parseInt(this.height_ / 2)
-      );
-      context.quadraticCurveTo(
-        parseInt(-this.width_ / 2),
-        parseInt(this.height_ / 2),
-        parseInt(-this.width_ / 2),
-        parseInt(this.height_ / 2 - this.arcHeight_)
-      );
-      context.lineTo(
-        parseInt(-this.width_ / 2),
-        parseInt(-this.height_ / 2 + this.arcHeight_)
-      );
-      context.quadraticCurveTo(
-        parseInt(-this.width_ / 2),
-        parseInt(-this.height_ / 2),
-        parseInt(-this.width_ / 2 + this.arcWidth_),
-        parseInt(-this.height_ / 2)
-      );
-      context.fill();
+      this._path(0);
+      this.context_.fillStyle = this._currentFill._colorString;
+      this.context_.globalAlpha = this._currentFill.opacity;
+      this.context_.fill();
     }
-
     if (this._currentStroke != null) {
-      context.strokeStyle = this._currentStroke._colorString;
-      context.globalAlpha = this._currentStroke.opacity;
-      context.lineWidth = this.strokeWidth_;
-
-      var offsetPosition = 0;
-      var offsetSize = 0;
+      let offset = 0;
       switch (this.strokeType_) {
         case StrokeType.OUTSIDE:
-          offsetPosition = -this.strokeWidth_ / 2;
-          offsetSize = this.strokeWidth_;
+          offset = this.strokeWidth_ / 2;
           break;
         case StrokeType.INSIDE:
-          offsetPosition = this.strokeWidth_ / 2;
-          offsetSize = -this.strokeWidth_;
+          offset = -this.strokeWidth_ / 2;
           break;
         case StrokeType.CENTERED:
         default:
-          offsetPosition = (this.strokeWidth_ % 2) / 2;
-          offsetSize = 0;
+          offset = 0;
           break;
       }
-
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      context.transform(
-        1, 0, 0, 1,
-        offsetSize / 2 + offsetPosition,
-        offsetSize / 2 + offsetPosition
-      );
-      this._transform(context);
-      context.beginPath();
-      context.moveTo(
-        parseInt(-(this.width_ + offsetSize) / 2 + this.arcWidth_),
-        parseInt(-(this.height_ + offsetSize) / 2)
-      );
-      context.lineTo(
-        parseInt((this.width_ + offsetSize) / 2 - this.arcWidth_),
-        parseInt(-(this.height_ + offsetSize) / 2)
-      );
-      context.quadraticCurveTo(
-        parseInt((this.width_ + offsetSize) / 2),
-        parseInt(-(this.height_ + offsetSize) / 2),
-        parseInt((this.width_ + offsetSize) / 2),
-        parseInt(-(this.height_ + offsetSize) / 2 + this.arcHeight_)
-      );
-      context.lineTo(
-        parseInt((this.width_ + offsetSize) / 2),
-        parseInt((this.height_ + offsetSize) / 2 - this.arcHeight_)
-      );
-      context.quadraticCurveTo(
-        parseInt((this.width_ + offsetSize) / 2),
-        parseInt((this.height_ + offsetSize) / 2),
-        parseInt((this.width_ + offsetSize) / 2 - this.arcWidth_),
-        parseInt((this.height_ + offsetSize) / 2)
-      );
-      context.lineTo(
-        parseInt(-(this.width_ + offsetSize) / 2 + this.arcWidth_),
-        parseInt((this.height_ + offsetSize) / 2)
-      );
-      context.quadraticCurveTo(
-        parseInt(-(this.width_ + offsetSize) / 2),
-        parseInt((this.height_ + offsetSize) / 2),
-        parseInt(-(this.width_ + offsetSize) / 2),
-        parseInt((this.height_ + offsetSize) / 2 - this.arcHeight_)
-      );
-      context.lineTo(
-        parseInt(-(this.width_ + offsetSize) / 2),
-        parseInt(-(this.height_ + offsetSize) / 2 + this.arcHeight_)
-      );
-      context.quadraticCurveTo(
-        parseInt(-(this.width_ + offsetSize) / 2),
-        parseInt(-(this.height_ + offsetSize) / 2),
-        parseInt(-(this.width_ + offsetSize) / 2 + this.arcWidth_),
-        parseInt(-(this.height_ + offsetSize) / 2)
-      );
-      context.stroke();
+      this._path(offset);
+      this.context_.strokeStyle = this._currentStroke._colorString;
+      this.context_.globalAlpha = this._currentStroke.opacity;
+      this.context_.lineWidth = this.strokeWidth_;
+      this.context_.stroke();
+    }
+  }
+  _path(offset) {
+    let w = this.width_ / 2 + offset;
+    let h = this.height_ / 2 + offset
+    if (0) {
+      this.context_.setTransform(1, 0, 0, 1, 0, 0);
+      this._transform();
+      this.context_.beginPath();
+      this.context_.moveTo(-w + this.arcWidth_, -h);
+      this.context_.lineTo(w - this.arcWidth_, -h);
+      this.context_.quadraticCurveTo(w, -h, w, -h + this.arcHeight_);
+      this.context_.lineTo(w, h - this.arcHeight_);
+      this.context_.quadraticCurveTo(w, h, w - this.arcWidth_, h);
+      this.context_.lineTo(-w + this.arcWidth_, h);
+      this.context_.quadraticCurveTo(-w, h, -w, h - this.arcHeight_);
+      this.context_.lineTo(-w, -h + this.arcHeight_);
+      this.context_.quadraticCurveTo(-w, -h, -w + this.arcWidth_, -h);
+      this.context_.closePath();
+    } else {
+      this.context_.setTransform(1, 0, 0, 1, 0, 0);
+      this._transform();
+      this.context_.beginPath();
+      this.context_.moveTo(-w + this.arcWidth_ * (offset + this.width_ / 2) / (this.width_ / 2), -h);
+      this.context_.lineTo(w - this.arcWidth_ * (offset + this.width_ / 2) / (this.width_ / 2), -h);
+      this.context_.quadraticCurveTo(w, -h, w, -h + this.arcHeight_ * (offset + this.height_ / 2) / (this.height_ / 2));
+      this.context_.lineTo(w, h - this.arcHeight_ * (offset + this.height_ / 2) / (this.height_ / 2));
+      this.context_.quadraticCurveTo(w, h, w - this.arcWidth_ * (offset + this.width_ / 2) / (this.width_ / 2), h);
+      this.context_.lineTo(-w + this.arcWidth_ * (offset + this.width_ / 2) / (this.width_ / 2), h);
+      this.context_.quadraticCurveTo(-w, h, -w, h - this.arcHeight_ * (offset + this.height_ / 2) / (this.height_ / 2));
+      this.context_.lineTo(-w, -h + this.arcHeight_ * (offset + this.height_ / 2) / (this.height_ / 2));
+      this.context_.quadraticCurveTo(-w, -h, -w + this.arcWidth_ * (offset + this.width_ / 2) / (this.width_ / 2), -h);
+      this.context_.closePath();
     }
   }
 }
