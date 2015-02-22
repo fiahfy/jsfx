@@ -13,7 +13,7 @@ import {Scene, Group} from '../src/scene.js';
 import {Stage} from '../src/stage.js';
 import {Duration} from '../src/util.js';
 import {Color} from '../src/scene/paint.js';
-import {StrokeType, Circle, Rectangle, Line} from '../src/scene/shape.js';
+import {StrokeType, StrokeLineCap, Circle, Rectangle, Line} from '../src/scene/shape.js';
 
 
 class TestApp extends Application {
@@ -36,13 +36,14 @@ class TestApp extends Application {
     let rectangle = new Rectangle(100, 100, 100, 100);
     rectangle.fill = Color.color(0, 0, 0, 1);
     rectangle.stroke = Color.color(0.5, 0, 0, 0.5);
-    rectangle.strokeWidth = 50;
+    rectangle.strokeWidth = 30;
     rectangle.strokeType = StrokeType.OUTSIDE;
-    rectangle.arcWidth = 50;
-    rectangle.arcHeight = 50;
+    rectangle.arcWidth = 0;
+    rectangle.arcHeight = 0;
 
-    let line = new Line(300, 300, 400, 250);
+    let line = new Line(300, 300, 250, 300);
     line.strokeWidth = 50;
+    line.strokeLineCap = StrokeLineCap.SQUARE;
 
     let group = new Group(circle, rectangle, line);
     children.push(group);

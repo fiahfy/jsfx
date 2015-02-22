@@ -12,6 +12,13 @@ import {Node} from '../scene.js';
 import {Color} from './paint.js';
 
 
+export var StrokeLineCap = {
+  BUTT: 'butt',
+  ROUND: 'round',
+  SQUARE: 'square'
+};
+
+
 export var StrokeType = {
   CENTERED: 'centered',
   INSIDE: 'inside',
@@ -24,6 +31,7 @@ export class Shape extends Node {
     super();
     this.fill_ = null;
     this.stroke_ = null;
+    this.strokeLineCap_ = StrokeLineCap.BUTT;
     this.strokeType_ = StrokeType.CENTERED;
     this.strokeWidth_ = 1.0;
   }
@@ -38,6 +46,12 @@ export class Shape extends Node {
   }
   set stroke(value) {
     this.stroke_ = value;
+  }
+  get strokeLineCap() {
+    return this.strokeLineCap_;
+  }
+  set strokeLineCap(value) {
+    this.strokeLineCap_ = value;
   }
   get strokeType() {
     return this.strokeType_;
@@ -206,6 +220,10 @@ export class Line extends Shape {
     this.startY_ = value;
   }
   _contains(x, y = null) {
+    if (x instanceof Point) {
+      y = x.y;
+      x = x.x;
+    }
     this._path(this.strokeWidth_ / 2);
     return this.context_.isPointInPath(x, y);
   }
@@ -226,6 +244,7 @@ export class Line extends Shape {
       this._path(0);
       this.context_.strokeStyle = this._currentStroke._colorString;
       this.context_.globalAlpha = this._currentStroke.opacity;
+      this.context_.lineCap = this.strokeLineCap_;
       this.context_.lineWidth = this.strokeWidth_;
       this.context_.stroke();
     }
@@ -239,16 +258,47 @@ export class Line extends Shape {
       this.context_.beginPath();
       this.context_.moveTo(this.startX_ - lb.minX - lb.width / 2, this.startY_ - lb.minY - lb.height / 2);
       this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2, this.endY_ - lb.minY - lb.height / 2);
+
     } else {
       let w = offset * (this.endY_ - this.startY_) / Math.sqrt(Math.pow(lb.width, 2) + Math.pow(lb.height, 2));
       let h = offset * (this.endX_ - this.startX_) / Math.sqrt(Math.pow(lb.width, 2) + Math.pow(lb.height, 2));
 
-      this.context_.beginPath();
-      this.context_.moveTo(this.startX_ - lb.minX - lb.width / 2 + w, this.startY_ - lb.minY - lb.height / 2 - h);
-      this.context_.lineTo(this.startX_ - lb.minX - lb.width / 2 - w, this.startY_ - lb.minY - lb.height / 2 + h);
-      this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2 - w, this.endY_ - lb.minY - lb.height / 2 + h);
-      this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2 + w, this.endY_ - lb.minY - lb.height / 2 - h);
-      this.context_.closePath();
+      switch (this.strokeLineCap_) {
+        case StrokeLineCap.SQUARE:
+          this.context_.beginPath();
+          this.context_.moveTo(this.startX_ - lb.minX - lb.width / 2 + w - h, this.startY_ - lb.minY - lb.height / 2 - h - w);
+          this.context_.lineTo(this.startX_ - lb.minX - lb.width / 2 - w - h, this.startY_ - lb.minY - lb.height / 2 + h - w);
+          this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2 - w + h, this.endY_ - lb.minY - lb.height / 2 + h + w);
+          this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2 + w + h, this.endY_ - lb.minY - lb.height / 2 - h + w);
+          this.context_.closePath();
+          break;
+        case StrokeLineCap.ROUND:
+          let s = Math.atan(-(this.endX_ - this.startX_) / (this.endY_ - this.startY_));
+          let e = s + Math.PI;
+          if (this.startY_ > this.endY_) {
+            s += Math.PI;
+            e += Math.PI;
+          }
+
+          this.context_.beginPath();
+          this.context_.moveTo(this.startX_ - lb.minX - lb.width / 2 + w, this.startY_ - lb.minY - lb.height / 2 - h);
+          this.context_.arc(this.startX_ - lb.minX - lb.width / 2, this.startY_ - lb.minY - lb.height / 2, offset, s, e, true);
+          this.context_.lineTo(this.startX_ - lb.minX - lb.width / 2 - w, this.startY_ - lb.minY - lb.height / 2 + h);
+          this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2 - w, this.endY_ - lb.minY - lb.height / 2 + h);
+          this.context_.arc(this.endX_ - lb.minX - lb.width / 2, this.endY_ - lb.minY - lb.height / 2, offset, e, s, true);
+          this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2 + w, this.endY_ - lb.minY - lb.height / 2 - h);
+          this.context_.closePath();
+          break;
+        case StrokeLineCap.BUTT:
+        default:
+          this.context_.beginPath();
+          this.context_.moveTo(this.startX_ - lb.minX - lb.width / 2 + w, this.startY_ - lb.minY - lb.height / 2 - h);
+          this.context_.lineTo(this.startX_ - lb.minX - lb.width / 2 - w, this.startY_ - lb.minY - lb.height / 2 + h);
+          this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2 - w, this.endY_ - lb.minY - lb.height / 2 + h);
+          this.context_.lineTo(this.endX_ - lb.minX - lb.width / 2 + w, this.endY_ - lb.minY - lb.height / 2 - h);
+          this.context_.closePath();
+          break;
+      }
     }
   }
 }
