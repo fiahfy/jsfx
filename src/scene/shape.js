@@ -85,8 +85,8 @@ export class Circle extends Shape {
     super();
     this.centerX_ = centerX;
     this.centerY_ = centerY;
-    this.radius_ = radius;
     this.fill_ = Color.BLACK;
+    this.radius_ = radius;
   }
   get centerX() {
     return this.centerX_;
@@ -305,15 +305,15 @@ export class Line extends Shape {
 
 
 export class Rectangle extends Shape {
-  constructor(x = 0, y = 0, width = 0, height = 0) {
+  constructor(x = 0.0, y = 0.0, width = 0.0, height = 0.0) {
     super();
     this.arcHeight_ = 0.0;
     this.arcWidth_ = 0.0;
+    this.fill_ = Color.BLACK;
     this.height_ = height;
     this.width_ = width;
     this.x_ = x;
     this.y_ = y;
-    this.fill_ = Color.BLACK;
   }
   get arcHeight() {
     return this.arcHeight_;

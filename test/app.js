@@ -14,6 +14,7 @@ import {Stage} from '../src/stage.js';
 import {Duration} from '../src/util.js';
 import {Color} from '../src/scene/paint.js';
 import {StrokeType, StrokeLineCap, Circle, Rectangle, Line} from '../src/scene/shape.js';
+import {Text} from '../src/scene/text.js';
 
 
 class TestApp extends Application {
@@ -45,7 +46,9 @@ class TestApp extends Application {
     line.strokeWidth = 50;
     line.strokeLineCap = StrokeLineCap.SQUARE;
 
-    let group = new Group(circle, rectangle, line);
+    let text = new Text(200, 300, "This is a test");
+
+    let group = new Group(circle, rectangle, text);
     children.push(group);
 
     rectangle.onMouseEntered = (() => {
